@@ -13,6 +13,7 @@ export default function MainLayout({ children }) {
         <nav>
           <div><Link to="/dashboard">Dashboard</Link></div>
           <div><Link to="/products">Products</Link></div>
+          <div><Link to="/products-in">Products Masuk</Link></div>
           <hr />
           <button onClick={logout}>Logout</button>
         </nav>
