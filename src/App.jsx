@@ -12,6 +12,11 @@ import ProductInCreate from "./pages/products-in/Create";
 import ProductInEdit from "./pages/products-in/Edit";
 import ProductInShow from "./pages/products-in/Show";
 
+import ProductOutIndex from "./pages/products-out/Index";
+import ProductOutCreate from "./pages/products-out/Create";
+// import ProductOutEdit from "./pages/products-out/Edit";
+// import ProductOutShow from "./pages/products-out/Show";
+
 import MainLayout from "./layouts/MainLayout";
 import { isLoggedIn } from "./lib/auth";
 
@@ -100,6 +105,24 @@ export default function App() {
           element={
             <MainLayout>
               <ProductInShow />
+            </MainLayout>
+          }
+        />
+        {/* PRODUCTS OUT */}
+        <Route
+          path="/products-out"
+          element={
+            <MainLayout>
+              <ProductOutIndex />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/products-out/create"
+          element={
+            <MainLayout>
+              <ProductOutCreate />
             </MainLayout>
           }
         />
