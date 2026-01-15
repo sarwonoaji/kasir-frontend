@@ -55,78 +55,80 @@ export default function ProductOutCreate() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">POS - Product Out</h1>
+    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '20px' }}>
+      <div style={{ backgroundColor: 'white', border: '1px solid #007bff', borderRadius: '8px', padding: '20px', marginBottom: '20px' }}>
+        <h1 style={{ color: '#007bff', marginBottom: '20px' }}>POS - Product Out</h1>
 
-      <input
-        className="border p-2 mb-3 w-full"
-        placeholder="Nama Customer"
-        value={customerName}
-        onChange={(e) => setCustomerName(e.target.value)}
-      />
+        <input
+          placeholder="Nama Customer"
+          value={customerName}
+          onChange={(e) => setCustomerName(e.target.value)}
+          style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '100%', marginBottom: '15px' }}
+        />
 
-      <table className="w-full border mb-3">
-        <thead>
-          <tr className="bg-gray-200">
-            <th>Produk</th>
-            <th>Qty</th>
-            <th>Harga</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, i) => (
-            <tr key={i}>
-              <td>
-                <select
-                  className="border p-1"
-                  value={item.product_id}
-                  onChange={(e) =>
-                    updateItem(i, "product_id", e.target.value)
-                  }
-                >
-                  <option value="">Pilih Produk</option>
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td>
-                <input
-                  type="number"
-                  className="border p-1 w-20"
-                  value={item.quantity}
-                  onChange={(e) =>
-                    updateItem(i, "quantity", e.target.value)
-                  }
-                />
-              </td>
-              <td>{item.price}</td>
-              <td>{item.total_price}</td>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '15px' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Produk</th>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Qty</th>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Harga</th>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Total</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((item, i) => (
+              <tr key={i} style={{ borderBottom: '1px solid #ddd' }}>
+                <td style={{ padding: '10px' }}>
+                  <select
+                    value={item.product_id}
+                    onChange={(e) =>
+                      updateItem(i, "product_id", e.target.value)
+                    }
+                    style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '100%' }}
+                  >
+                    <option value="">Pilih Produk</option>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td style={{ padding: '10px' }}>
+                  <input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) =>
+                      updateItem(i, "quantity", e.target.value)
+                    }
+                    style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '80px' }}
+                  />
+                </td>
+                <td style={{ padding: '10px' }}>{item.price}</td>
+                <td style={{ padding: '10px' }}>{item.total_price}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      <button
-        onClick={addItem}
-        className="bg-blue-500 text-white px-3 py-1 rounded"
-      >
-        + Tambah Item
-      </button>
+        <button
+          onClick={addItem}
+          style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', marginBottom: '15px' }}
+        >
+          + Tambah Item
+        </button>
 
-      <div className="mt-4 font-bold">
-        Total: Rp {total.toLocaleString()}
+        <div style={{ fontWeight: 'bold', marginBottom: '15px' }}>
+          Total: Rp {total.toLocaleString()}
+        </div>
+
+        <button
+          onClick={submit}
+          style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer' }}
+        >
+          Simpan Transaksi
+        </button>
       </div>
-
-      <button
-        onClick={submit}
-        className="bg-green-600 text-white px-4 py-2 mt-3 rounded"
-      >
-        Simpan Transaksi
-      </button>
     </div>
   );
 }

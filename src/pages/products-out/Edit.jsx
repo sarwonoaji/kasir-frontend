@@ -2,28 +2,28 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../lib/axios";
 
-export default function ProductInEdit() {
+export default function ProductOutEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [date, setDate] = useState("");
-  const [remark, setRemark] = useState("");
+  const [customer, setCustomer] = useState("");
   const [products, setProducts] = useState([]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [productsRes, productInRes] = await Promise.all([
+      const [productsRes, productOutRes] = await Promise.all([
         api.get("/products"),
-        api.get(`/product-ins/${id}`),
+        api.get(`/product-outs/${id}`),
       ]);
 
       setProducts(productsRes.data);
 
-      const data = productInRes.data;
+      const data = productOutRes.data;
       setDate(data.date);
-      setRemark(data.remark);
+      setCustomer(data.customer_name || "");
 
       setItems(
         data.details.map((d) => ({
@@ -51,14 +51,10 @@ export default function ProductInEdit() {
   };
 
   const handleProductChange = (index, productId) => {
-    const product = products.find(
-      (p) => p.id === Number(productId)
-    );
-
+    const product = products.find((p) => p.id === Number(productId));
     const newItems = [...items];
     newItems[index].product_id = productId;
     newItems[index].price = product ? product.price : 0;
-
     setItems(newItems);
   };
 
@@ -71,14 +67,14 @@ export default function ProductInEdit() {
   const submit = async (e) => {
     e.preventDefault();
 
-    await api.put(`/product-ins/${id}`, {
+    await api.put(`/product-outs/${id}`, {
       date,
-      remark,
+      customer_name: customer,
       items,
     });
 
-    alert("Product in berhasil diupdate");
-    navigate("/products-in");
+    alert("Product out berhasil diupdate");
+    navigate("/products-out");
   };
 
   if (loading) return <p>Loading...</p>;
@@ -86,7 +82,7 @@ export default function ProductInEdit() {
   return (
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '20px' }}>
       <div style={{ backgroundColor: 'white', border: '1px solid #007bff', borderRadius: '8px', padding: '20px', marginBottom: '20px' }}>
-        <h2 style={{ color: '#007bff', marginBottom: '20px' }}>Edit Barang Masuk</h2>
+        <h2 style={{ color: '#007bff', marginBottom: '20px' }}>Edit Penjualan</h2>
 
         <form onSubmit={submit}>
           <div style={{ marginBottom: '15px' }}>
@@ -101,11 +97,11 @@ export default function ProductInEdit() {
           </div>
 
           <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Catatan</label>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Customer</label>
             <input
               type="text"
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
+              value={customer}
+              onChange={(e) => setCustomer(e.target.value)}
               style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '100%' }}
             />
           </div>
@@ -118,9 +114,7 @@ export default function ProductInEdit() {
             <div key={index} style={{ display: "flex", gap: '8px', alignItems: 'center', marginBottom: '10px' }}>
               <select
                 value={item.product_id}
-                onChange={(e) =>
-                  handleProductChange(index, e.target.value)
-                }
+                onChange={(e) => handleProductChange(index, e.target.value)}
                 required
                 style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', flex: 1 }}
               >
@@ -136,18 +130,16 @@ export default function ProductInEdit() {
                 type="number"
                 min="1"
                 value={item.quantity}
-                onChange={(e) =>
-                  updateItem(index, "quantity", Number(e.target.value))
-                }
+                onChange={(e) => updateItem(index, "quantity", Number(e.target.value))}
                 style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '80px' }}
               />
 
-               <input
-                    type="number"
-                    min="0"
-                    value={item.price}
-                    readOnly
-                    style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '100px' }}
+              <input
+                type="number"
+                min="0"
+                value={item.price}
+                readOnly
+                style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '100px' }}
               />
 
               <span style={{ fontWeight: 'bold' }}>

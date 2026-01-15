@@ -28,17 +28,74 @@ export default function ProductCreate() {
   };
 
   return (
-    <div>
-      <h2>Tambah Produk</h2>
+    <div style={{ padding: 20, backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+      <h2 style={{ color: '#007bff', marginBottom: '20px' }}>Tambah Produk</h2>
 
-      <input placeholder="Barcode" onChange={e => setForm({ ...form, barcode: e.target.value })} />
-      <input placeholder="Nama" onChange={e => setForm({ ...form, name: e.target.value })} />
-      <input type="number" placeholder="Harga" onChange={e => setForm({ ...form, price: e.target.value })} />
-      <input type="number" placeholder="Stok" onChange={e => setForm({ ...form, stock: e.target.value })} />
-      <input placeholder="Satuan" onChange={e => setForm({ ...form, unit: e.target.value })} />
-      <input placeholder="Keterangan" onChange={e => setForm({ ...form, description: e.target.value })} />
+      <div style={{
+        backgroundColor: 'white',
+        padding: '20px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        borderTop: '4px solid #007bff',
+        maxWidth: '600px'
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
+          <input
+            placeholder="Barcode"
+            value={form.barcode}
+            onChange={e => setForm({ ...form, barcode: e.target.value })}
+            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+          <input
+            placeholder="Nama"
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+          <input
+            type="number"
+            placeholder="Harga"
+            value={form.price}
+            onChange={e => setForm({ ...form, price: e.target.value })}
+            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+          <input
+            type="number"
+            placeholder="Stok"
+            value={form.stock}
+            onChange={e => setForm({ ...form, stock: e.target.value })}
+            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+          <input
+            placeholder="Satuan"
+            value={form.unit}
+            onChange={e => setForm({ ...form, unit: e.target.value })}
+            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+          <input
+            placeholder="Keterangan"
+            value={form.description}
+            onChange={e => setForm({ ...form, description: e.target.value })}
+            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+        </div>
 
-      <button onClick={submit}>Simpan</button>
+        <button
+          onClick={submit}
+          style={{
+            marginTop: '20px',
+            padding: '10px 20px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Simpan
+        </button>
+      </div>
     </div>
   );
 }
+

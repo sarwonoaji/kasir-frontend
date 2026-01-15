@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../../lib/axios";
 
-export default function ProductInShow() {
+export default function ProductOutShow() {
   const { id } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api
-      .get(`/product-ins/${id}`)
+      .get(`/product-outs/${id}`)
       .then((res) => setData(res.data))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
@@ -28,10 +28,9 @@ export default function ProductInShow() {
     0
   );
 
-  // 🔥 OPSI 1 — PRINT PDF VIA AXIOS (AMAN)
   const printPdf = async () => {
     const res = await api.get(
-      `/product-ins/${id}/print`,
+      `/product-outs/${id}/print`,
       { responseType: "blob" }
     );
 
@@ -45,11 +44,11 @@ export default function ProductInShow() {
   return (
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '20px' }}>
       <div style={{ backgroundColor: 'white', border: '1px solid #007bff', borderRadius: '8px', padding: '20px', marginBottom: '20px' }}>
-        <h2 style={{ color: '#007bff', marginBottom: '20px' }}>Detail Barang Masuk</h2>
+        <h2 style={{ color: '#007bff', marginBottom: '20px' }}>Detail Penjualan</h2>
 
-        <p style={{ marginBottom: '10px' }}><b>No Transaksi:</b> {data.no_transaksi}</p>
+        <p style={{ marginBottom: '10px' }}><b>Invoice:</b> {data.invoice}</p>
         <p style={{ marginBottom: '10px' }}><b>Tanggal:</b> {data.date}</p>
-        <p style={{ marginBottom: '20px' }}><b>Catatan:</b> {data.remark || "-"}</p>
+        <p style={{ marginBottom: '20px' }}><b>Customer:</b> {data.customer_name || "-"}</p>
 
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
           <thead>
@@ -88,7 +87,7 @@ export default function ProductInShow() {
 
         <button onClick={printPdf} style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', marginRight: '10px' }}>🖨 Print PDF</button>
         <br /><br />
-        <Link to="/products-in" style={{ color: '#007bff', textDecoration: 'none' }}>⬅ Kembali</Link>
+        <Link to="/products-out" style={{ color: '#007bff', textDecoration: 'none' }}>⬅ Kembali</Link>
       </div>
     </div>
   );
