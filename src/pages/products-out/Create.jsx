@@ -6,6 +6,9 @@ export default function ProductOutCreate() {
   const [items, setItems] = useState([]);
   const [customerName, setCustomerName] = useState("");
   const [casher, setCasher] = useState("Admin");
+  const [moneyReceived, setMoneyReceived] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState("");
 
   useEffect(() => {
     api.get("/products").then((res) => {
@@ -40,6 +43,8 @@ export default function ProductOutCreate() {
   };
 
   const total = items.reduce((sum, item) => sum + Number(item.total_price), 0);
+  const totalBayar = total - discount;
+  const returnAmount = moneyReceived - totalBayar; // As per prompt: return = Total Bayar - money_received
 
   const submit = async () => {
     await api.post("/product-outs", {
@@ -47,11 +52,18 @@ export default function ProductOutCreate() {
       date: new Date().toISOString().slice(0, 10),
       casher,
       items,
+      money_received: moneyReceived,
+      discount: discount,
+      return: returnAmount,
+      payment_method: paymentMethod,
     });
 
     alert("Transaksi berhasil");
     setItems([]);
     setCustomerName("");
+    setMoneyReceived(0);
+    setDiscount(0);
+    setPaymentMethod("");
   };
 
   return (
@@ -120,6 +132,48 @@ export default function ProductOutCreate() {
 
         <div style={{ fontWeight: 'bold', marginBottom: '15px' }}>
           Total: Rp {total.toLocaleString()}
+        </div>
+
+        <div style={{ marginBottom: '15px' }}>
+          <label>Discount: </label>
+          <input
+            type="number"
+            value={discount}
+            onChange={(e) => setDiscount(Number(e.target.value))}
+            style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '100px', marginLeft: '10px' }}
+          />
+        </div>
+
+        <div style={{ fontWeight: 'bold', marginBottom: '15px' }}>
+          Total Bayar: Rp {totalBayar.toLocaleString()}
+        </div>
+
+        <div style={{ marginBottom: '15px' }}>
+          <label>Money Received: </label>
+          <input
+            type="number"
+            value={moneyReceived}
+            onChange={(e) => setMoneyReceived(Number(e.target.value))}
+            style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '100px', marginLeft: '10px' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '15px' }}>
+          <label>Payment Method: </label>
+          <select
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+            style={{ border: '1px solid #007bff', padding: '8px', borderRadius: '4px', width: '150px', marginLeft: '10px' }}
+          >
+            <option value="">Pilih</option>
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="Transfer">Transfer</option>
+          </select>
+        </div>
+
+        <div style={{ fontWeight: 'bold', marginBottom: '15px' }}>
+          Return: Rp {returnAmount.toLocaleString()}
         </div>
 
         <button

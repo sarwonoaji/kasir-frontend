@@ -65,7 +65,11 @@ export default function ProductOutIndex() {
               <th style={{ padding: '10px', textAlign: 'left' }}>No</th>
               <th style={{ padding: '10px', textAlign: 'left' }}>Invoice</th>
               <th style={{ padding: '10px', textAlign: 'left' }}>Customer</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Total</th>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Total Bayar</th>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Uang Diterima</th>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Diskon</th>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Kembalian</th>
+              <th style={{ padding: '10px', textAlign: 'left' }}>Metode Pembayaran</th>
               <th style={{ padding: '10px', textAlign: 'left' }}>Kasir</th>
               <th style={{ padding: '10px', textAlign: 'left' }}>Aksi</th>
             </tr>
@@ -97,6 +101,10 @@ export default function ProductOutIndex() {
                   <td style={{ padding: '10px', color: '#333' }}>{row.invoice}</td>
                   <td style={{ padding: '10px', color: '#333' }}>{row.customer_name}</td>
                   <td style={{ padding: '10px', color: '#333' }}>Rp {totalValue.toLocaleString()}</td>
+                  <td style={{ padding: '10px', color: '#333' }}>Rp {Number(row.money_received).toLocaleString()}</td>
+                  <td style={{ padding: '10px', color: '#333' }}>Rp {Number(row.discount).toLocaleString()}</td>
+                  <td style={{ padding: '10px', color: '#333' }}>Rp {Number(row.money_received).toLocaleString()}</td>
+                  <td style={{ padding: '10px', color: '#333' }}>{row.payment_method}</td>  
                   <td style={{ padding: '10px', color: '#333' }}>{row.casher}</td>
                   <td style={{ padding: '10px' }}>
                     <Link to={`/products-out/${row.id}`} style={{ color: '#007bff', textDecoration: 'none', marginRight: '10px' }}>👁 Detail</Link>

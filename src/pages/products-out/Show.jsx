@@ -49,7 +49,6 @@ export default function ProductOutShow() {
         <p style={{ marginBottom: '10px' }}><b>Invoice:</b> {data.invoice}</p>
         <p style={{ marginBottom: '10px' }}><b>Tanggal:</b> {data.date}</p>
         <p style={{ marginBottom: '20px' }}><b>Customer:</b> {data.customer_name || "-"}</p>
-
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
           <thead>
             <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
@@ -81,6 +80,22 @@ export default function ProductOutShow() {
               <th style={{ padding: '10px', textAlign: 'center' }}>{totalQty}</th>
               <th style={{ padding: '10px' }}></th>
               <th style={{ padding: '10px', textAlign: 'right' }}>Rp {totalValue.toLocaleString("id-ID")}</th>
+            </tr>
+            <tr>
+              <th colSpan="4" style={{ padding: '10px', textAlign: 'left' }}>Money Received:</th>
+              <th style={{ padding: '10px', textAlign: 'right' }}>Rp {Number(data.money_received || 0).toLocaleString("id-ID")}</th>
+            </tr>
+            <tr>
+              <th colSpan="4" style={{ padding: '10px', textAlign: 'left' }}>Discount:</th>
+              <th style={{ padding: '10px', textAlign: 'right' }}>Rp {Number(data.discount || 0).toLocaleString("id-ID")}</th>
+            </tr>
+            <tr>
+              <th colSpan="4" style={{ padding: '10px', textAlign: 'left' }}>Return:</th>
+              <th style={{ padding: '10px', textAlign: 'right' }}>Rp {Number(data.return || 0).toLocaleString("id-ID")}</th>
+            </tr>
+            <tr>
+              <th colSpan="4" style={{ padding: '10px', textAlign: 'left' }}>Payment Method:</th>
+              <th style={{ padding: '10px', textAlign: 'right' }}>{data.payment_method || "-"}</th>
             </tr>
           </tfoot>
         </table>

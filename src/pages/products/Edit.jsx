@@ -21,6 +21,7 @@ export default function ProductEdit() {
 
   const submit = async () => {
     await api.put(`/products/${id}`, {
+      barcode: form.barcode,
       name: form.name,
       price: Number(form.price),
       stock: Number(form.stock),
@@ -46,8 +47,8 @@ export default function ProductEdit() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
           <input
             value={form.barcode}
-            disabled
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px', backgroundColor: '#f8f9fa' }}
+            onChange={e => setForm({ ...form, barcode: e.target.value })}
+            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
           />
           <input
             value={form.name}
