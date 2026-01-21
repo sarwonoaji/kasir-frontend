@@ -1,6 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../lib/axios";
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Grid,
+  IconButton,
+} from "@mui/material";
+import {
+  Save as SaveIcon,
+  Inventory as InventoryIcon,
+  ArrowBack as ArrowBackIcon,
+} from "@mui/icons-material";
+import { Link } from "react-router-dom";
 
 export default function ProductCreate() {
   const navigate = useNavigate();
@@ -28,74 +44,112 @@ export default function ProductCreate() {
   };
 
   return (
-    <div style={{ padding: 20, backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      <h2 style={{ color: '#007bff', marginBottom: '20px' }}>Tambah Produk</h2>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+        <IconButton component={Link} to="/products" color="primary">
+          <ArrowBackIcon />
+        </IconButton>
+        <InventoryIcon color="primary" sx={{ fontSize: 40 }} />
+        <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
+          Tambah Produk
+        </Typography>
+      </Box>
 
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        borderTop: '4px solid #007bff',
-        maxWidth: '600px'
-      }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '15px' }}>
-          <input
-            placeholder="Barcode"
-            value={form.barcode}
-            onChange={e => setForm({ ...form, barcode: e.target.value })}
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
-          />
-          <input
-            placeholder="Nama"
-            value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
-          />
-          <input
-            type="number"
-            placeholder="Harga"
-            value={form.price}
-            onChange={e => setForm({ ...form, price: e.target.value })}
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
-          />
-          <input
-            type="number"
-            placeholder="Stok"
-            value={form.stock}
-            onChange={e => setForm({ ...form, stock: e.target.value })}
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
-          />
-          <input
-            placeholder="Satuan"
-            value={form.unit}
-            onChange={e => setForm({ ...form, unit: e.target.value })}
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
-          />
-          <input
-            placeholder="Keterangan"
-            value={form.description}
-            onChange={e => setForm({ ...form, description: e.target.value })}
-            style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
-          />
-        </div>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2, maxWidth: 600 }}>
+        <Box component="form" onSubmit={(e) => { e.preventDefault(); submit(); }}>
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Barcode"
+                variant="outlined"
+                value={form.barcode}
+                onChange={e => setForm({ ...form, barcode: e.target.value })}
+                placeholder="Masukkan barcode produk"
+              />
+            </Grid>
 
-        <button
-          onClick={submit}
-          style={{
-            marginTop: '20px',
-            padding: '10px 20px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Simpan
-        </button>
-      </div>
-    </div>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                label="Nama Produk"
+                variant="outlined"
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                placeholder="Masukkan nama produk"
+                required
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                label="Harga"
+                type="number"
+                variant="outlined"
+                value={form.price}
+                onChange={e => setForm({ ...form, price: e.target.value })}
+                placeholder="0"
+                InputProps={{
+                  startAdornment: <Typography sx={{ mr: 1 }}>Rp</Typography>,
+                }}
+                required
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                label="Stok"
+                type="number"
+                variant="outlined"
+                value={form.stock}
+                onChange={e => setForm({ ...form, stock: e.target.value })}
+                placeholder="0"
+                required
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                label="Satuan"
+                variant="outlined"
+                value={form.unit}
+                onChange={e => setForm({ ...form, unit: e.target.value })}
+                placeholder="pcs, kg, liter, dll"
+              />
+            </Grid>
+
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                fullWidth
+                label="Keterangan"
+                variant="outlined"
+                value={form.description}
+                onChange={e => setForm({ ...form, description: e.target.value })}
+                placeholder="Deskripsi produk (opsional)"
+                multiline
+                rows={2}
+              />
+            </Grid>
+          </Grid>
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              startIcon={<SaveIcon />}
+              size="large"
+              sx={{ px: 6, py: 1.5 }}
+            >
+              Simpan Produk
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 

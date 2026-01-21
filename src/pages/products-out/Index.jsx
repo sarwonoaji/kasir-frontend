@@ -1,6 +1,30 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../lib/axios";
+import {
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  CircularProgress,
+  Box,
+  Chip,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Visibility as VisibilityIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  ShoppingCart as ShoppingCartIcon,
+} from "@mui/icons-material";
 
 export default function ProductOutIndex() {
   const [data, setData] = useState([]);
@@ -25,110 +49,138 @@ export default function ProductOutIndex() {
   };
 
   if (loading) return (
-    <div style={{ padding: 20, backgroundColor: '#f8f9fa', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-      <p style={{ fontSize: '18px', color: '#007bff' }}>Loading...</p>
-    </div>
+    <Container maxWidth="lg" sx={{ py: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <CircularProgress size={60} />
+        <Typography variant="h6" color="primary">Memuat data...</Typography>
+      </Box>
+    </Container>
   );
 
   return (
-    <div style={{ padding: 20, backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      <h2 style={{ color: '#007bff', marginBottom: '20px' }}>📤 Daftar Penjualan</h2>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <ShoppingCartIcon color="primary" sx={{ fontSize: 40 }} />
+          <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
+            Daftar Penjualan
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          startIcon={<AddIcon />}
+          component={Link}
+          to="/products-out/create"
+          sx={{ px: 3, py: 1.5 }}
+        >
+          Tambah Penjualan
+        </Button>
+      </Box>
 
-      <Link to="/products-out/create">
-        <button style={{
-          padding: '10px 20px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          marginBottom: '20px'
-        }}>
-          + Tambah Penjualan
-        </button>
-      </Link>
+      <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: 'primary.main' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>No</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Invoice</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Customer</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Total Bayar</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Uang Diterima</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Diskon</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Kembalian</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Metode Pembayaran</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Kasir</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Aksi</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={10} sx={{ textAlign: 'center', py: 6 }}>
+                    <Typography variant="h6" color="text.secondary">
+                      Tidak ada data penjualan
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                data.map((row, index) => {
+                  const totalQty = row.details.reduce(
+                    (sum, d) => sum + Number(d.quantity),
+                    0
+                  );
 
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        borderTop: '4px solid #007bff'
-      }}>
-        <table style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          border: '1px solid #ddd'
-        }}>
-          <thead>
-            <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
-              <th style={{ padding: '10px', textAlign: 'left' }}>No</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Invoice</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Customer</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Total Bayar</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Uang Diterima</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Diskon</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Kembalian</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Metode Pembayaran</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Kasir</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Aksi</th>
-            </tr>
-          </thead>
+                  const totalValue = row.details.reduce(
+                    (sum, d) => sum + Number(d.total_price),
+                    0
+                  );
 
-          <tbody>
-            {data.length === 0 && (
-              <tr>
-                <td colSpan="6" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
-                  Tidak ada data
-                </td>
-              </tr>
-            )}
-
-            {data.map((row, index) => {
-              const totalQty = row.details.reduce(
-                (sum, d) => sum + Number(d.quantity),
-                0
-              );
-
-              const totalValue = row.details.reduce(
-                (sum, d) => sum + Number(d.total_price),
-                0
-              );
-
-              return (
-                <tr key={row.id} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '10px', color: '#333' }}>{index + 1}</td>
-                  <td style={{ padding: '10px', color: '#333' }}>{row.invoice}</td>
-                  <td style={{ padding: '10px', color: '#333' }}>{row.customer_name}</td>
-                  <td style={{ padding: '10px', color: '#333' }}>Rp {totalValue.toLocaleString()}</td>
-                  <td style={{ padding: '10px', color: '#333' }}>Rp {Number(row.money_received).toLocaleString()}</td>
-                  <td style={{ padding: '10px', color: '#333' }}>Rp {Number(row.discount).toLocaleString()}</td>
-                  <td style={{ padding: '10px', color: '#333' }}>Rp {Number(row.money_received).toLocaleString()}</td>
-                  <td style={{ padding: '10px', color: '#333' }}>{row.payment_method}</td>  
-                  <td style={{ padding: '10px', color: '#333' }}>{row.casher}</td>
-                  <td style={{ padding: '10px' }}>
-                    <Link to={`/products-out/${row.id}`} style={{ color: '#007bff', textDecoration: 'none', marginRight: '10px' }}>👁 Detail</Link>
-                    <Link to={`/products-out/edit/${row.id}`} style={{ color: '#007bff', textDecoration: 'none', marginRight: '10px' }}>✏️ Edit</Link>
-                    <button
-                      onClick={() => remove(row.id)}
-                      style={{
-                        padding: '5px 10px',
-                        backgroundColor: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      🗑 Hapus
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                  return (
+                    <TableRow key={row.id} hover sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
+                      <TableCell sx={{ fontWeight: 'medium' }}>{index + 1}</TableCell>
+                      <TableCell sx={{ fontWeight: 'medium', color: 'primary.main' }}>{row.invoice}</TableCell>
+                      <TableCell>{row.customer_name || '-'}</TableCell>
+                      <TableCell sx={{ fontWeight: 'bold', color: 'success.main' }}>
+                        Rp {totalValue.toLocaleString()}
+                      </TableCell>
+                      <TableCell>Rp {Number(row.money_received).toLocaleString()}</TableCell>
+                      <TableCell>Rp {Number(row.discount).toLocaleString()}</TableCell>
+                      <TableCell sx={{ color: Number(row.return) >= 0 ? 'success.main' : 'error.main' }}>
+                        Rp {Number(row.return).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={row.payment_method || 'Cash'}
+                          size="small"
+                          color={row.payment_method === 'Card' ? 'primary' : row.payment_method === 'Transfer' ? 'secondary' : 'default'}
+                          variant="outlined"
+                        />
+                      </TableCell>
+                      <TableCell>{row.casher}</TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Tooltip title="Lihat Detail">
+                            <IconButton
+                              component={Link}
+                              to={`/products-out/${row.id}`}
+                              color="primary"
+                              size="small"
+                            >
+                              <VisibilityIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Edit">
+                            <IconButton
+                              component={Link}
+                              to={`/products-out/edit/${row.id}`}
+                              color="secondary"
+                              size="small"
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Hapus">
+                            <IconButton
+                              onClick={() => remove(row.id)}
+                              color="error"
+                              size="small"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Container>
   );
 }
+

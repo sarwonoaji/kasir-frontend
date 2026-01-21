@@ -1,6 +1,31 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../lib/axios";
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  IconButton,
+  Divider,
+} from "@mui/material";
+import {
+  Save as SaveIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Inventory as InventoryIcon,
+  CalendarToday as CalendarIcon,
+  Notes as NotesIcon,
+} from "@mui/icons-material";
 
 export default function ProductInCreate() {
   const [date, setDate] = useState("");
@@ -60,143 +85,160 @@ export default function ProductInCreate() {
   };
 
   return (
-    <div style={{ padding: 20, backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      <h2 style={{ color: '#007bff', marginBottom: '20px' }}>📥 Barang Masuk</h2>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+        <InventoryIcon color="primary" sx={{ fontSize: 40 }} />
+        <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
+          Barang Masuk
+        </Typography>
+      </Box>
 
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        borderTop: '4px solid #007bff',
-        maxWidth: '800px'
-      }}>
-        <form onSubmit={submit}>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: '#555' }}>Tanggal</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px', width: '100%' }}
-            />
-          </div>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2, maxWidth: 800 }}>
+        <Box component="form" onSubmit={submit}>
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <CalendarIcon color="action" />
+                <Typography variant="body1" fontWeight="medium">
+                  Tanggal
+                </Typography>
+              </Box>
+              <TextField
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+                fullWidth
+                variant="outlined"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <NotesIcon color="action" />
+                <Typography variant="body1" fontWeight="medium">
+                  Catatan
+                </Typography>
+              </Box>
+              <TextField
+                type="text"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                fullWidth
+                variant="outlined"
+                placeholder="Masukkan catatan (opsional)"
+              />
+            </Grid>
+          </Grid>
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: '#555' }}>Catatan</label>
-            <input
-              type="text"
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-              style={{ padding: '10px', border: '1px solid #ddd', borderRadius: '4px', width: '100%' }}
-            />
-          </div>
+          <Divider sx={{ my: 3 }} />
 
-          <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #eee' }} />
-
-          <h4 style={{ color: '#007bff', marginBottom: '15px' }}>Detail Barang</h4>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+            <InventoryIcon color="primary" />
+            <Typography variant="h6" fontWeight="bold">
+              Detail Barang
+            </Typography>
+          </Box>
 
           {items.map((item, index) => (
-            <div key={index} style={{
-              display: "flex",
-              gap: 8,
-              alignItems: 'center',
-              marginBottom: '10px',
-              padding: '10px',
-              backgroundColor: '#f9f9f9',
-              borderRadius: '4px'
-            }}>
-              <select
-                value={item.product_id}
-                onChange={(e) =>
-                  handleProductChange(index, e.target.value)
-                }
-                required
-                style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', flex: 2 }}
-              >
-                <option value="">-- pilih produk --</option>
-                {products.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
+            <Card key={index} elevation={1} sx={{ mb: 2, borderRadius: 2 }}>
+              <CardContent sx={{ pb: '16px !important' }}>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid size={{ xs: 12, md: 4 }}>
+                    <FormControl fullWidth variant="outlined" size="small">
+                      <InputLabel>Pilih Produk</InputLabel>
+                      <Select
+                        value={item.product_id}
+                        onChange={(e) => handleProductChange(index, e.target.value)}
+                        label="Pilih Produk"
+                        required
+                      >
+                        <MenuItem value="">
+                          <em>-- pilih produk --</em>
+                        </MenuItem>
+                        {products.map((p) => (
+                          <MenuItem key={p.id} value={p.id}>
+                            {p.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
 
-              <input
-                type="number"
-                min="1"
-                value={item.quantity}
-                onChange={(e) =>
-                  updateItem(index, "quantity", Number(e.target.value))
-                }
-                style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', width: '80px' }}
-              />
+                  <Grid size={{ xs: 12, md: 2 }}>
+                    <TextField
+                      type="number"
+                      label="Qty"
+                      size="small"
+                      value={item.quantity}
+                      onChange={(e) => updateItem(index, "quantity", Number(e.target.value))}
+                      inputProps={{ min: 1 }}
+                      fullWidth
+                    />
+                  </Grid>
 
-              <input
-                type="number"
-                min="0"
-                value={item.price}
-                readOnly
-                style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px', width: '100px', backgroundColor: '#f8f9fa' }}
-              />
+                  <Grid size={{ xs: 12, md: 2 }}>
+                    <TextField
+                      type="number"
+                      label="Harga"
+                      size="small"
+                      value={item.price}
+                      InputProps={{ readOnly: true }}
+                      fullWidth
+                      sx={{ backgroundColor: 'action.hover' }}
+                    />
+                  </Grid>
 
-              <span style={{ flex: 1, fontWeight: 'bold', color: '#007bff' }}>
-                Total: Rp {(item.quantity * item.price).toLocaleString()}
-              </span>
+                  <Grid size={{ xs: 12, md: 3 }}>
+                    <Typography variant="body1" fontWeight="bold" color="primary">
+                      Total: Rp {(item.quantity * item.price).toLocaleString()}
+                    </Typography>
+                  </Grid>
 
-              <button
-                type="button"
-                onClick={() => removeItem(index)}
-                style={{
-                  padding: '8px',
-                  backgroundColor: '#dc3545',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                ❌
-              </button>
-            </div>
+                  <Grid size={{ xs: 12, md: 1 }}>
+                    <IconButton
+                      onClick={() => removeItem(index)}
+                      color="error"
+                      size="small"
+                      sx={{ ml: 'auto', display: 'block' }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
           ))}
 
-          <button
-            type="button"
-            onClick={addItem}
-            style={{
-              marginTop: '10px',
-              padding: '10px 20px',
-              backgroundColor: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            ➕ Tambah Barang
-          </button>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+            <Button
+              variant="outlined"
+              color="success"
+              startIcon={<AddIcon />}
+              onClick={addItem}
+              size="large"
+              sx={{ px: 4 }}
+            >
+              Tambah Barang
+            </Button>
+          </Box>
 
-          <hr style={{ margin: '20px 0', border: 'none', borderTop: '1px solid #eee' }} />
+          <Divider sx={{ my: 3 }} />
 
-          <button
-            type="submit"
-            style={{
-              padding: '12px 24px',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '16px'
-            }}
-          >
-            💾 Simpan
-          </button>
-        </form>
-      </div>
-    </div>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              startIcon={<SaveIcon />}
+              size="large"
+              sx={{ px: 6, py: 1.5 }}
+            >
+              Simpan
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 

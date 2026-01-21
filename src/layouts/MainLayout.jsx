@@ -1,171 +1,220 @@
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { isLoggedIn, logout } from "../lib/auth";
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import MoveToInboxIcon from '@mui/icons-material/MoveToInbox';
-import OutboxIcon from '@mui/icons-material/Outbox';
-import LogoutIcon from '@mui/icons-material/Logout';
-import StoreIcon from '@mui/icons-material/Store';
-import MenuIcon from '@mui/icons-material/Menu';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Button,
+  Box,
+  Divider,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import {
+  Dashboard as DashboardIcon,
+  Inventory as InventoryIcon,
+  MoveToInbox as MoveToInboxIcon,
+  Outbox as OutboxIcon,
+  Logout as LogoutIcon,
+  Store as StoreIcon,
+  Menu as MenuIcon,
+  ChevronLeft as ChevronLeftIcon,
+} from "@mui/icons-material";
 import { useState } from "react";
 
 export default function MainLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const location = useLocation();
+
+  // Auto-close sidebar on mobile
+  const handleDrawerToggle = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  // Close sidebar on mobile when clicking menu item
+  const handleMenuClick = () => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  };
 
   if (!isLoggedIn()) {
     return <Navigate to="/login" />;
   }
 
-  return (
-    <div style={{ display: "flex", minHeight: "100%", height: "100%", backgroundColor: "#f8f9fa", width: "100%", boxSizing: 'border-box' }}>
-      <aside style={{
-        width: 250,
-        backgroundColor: "#007bff",
-        color: "white",
-        padding: "20px",
-        boxShadow: "2px 0 5px rgba(0,0,0,0.1)",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        bottom: 0,
-        overflowY: "auto",
-        transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-        transition: "transform 0.3s ease",
-        zIndex: 1000
-      }}>
-        <h3 style={{
-          margin: "0 0 30px 0",
-          fontSize: "24px",
-          fontWeight: "bold",
-          textAlign: "center",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
-          <StoreIcon style={{ marginRight: "10px" }} />
-          POS Kasir
-        </h3>
-        <nav>
-          <Link to="/dashboard" style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "12px 15px",
-            marginBottom: "10px",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "5px",
-            transition: "background-color 0.3s"
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = "#0056b3"}
-          onMouseOut={(e) => e.target.style.backgroundColor = "transparent"}
-          >
-            <DashboardIcon style={{ marginRight: "10px" }} />
-            Dashboard
-          </Link>
-          <Link to="/products" style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "12px 15px",
-            marginBottom: "10px",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "5px",
-            transition: "background-color 0.3s"
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = "#0056b3"}
-          onMouseOut={(e) => e.target.style.backgroundColor = "transparent"}
-          >
-            <InventoryIcon style={{ marginRight: "10px" }} />
-            Produk
-          </Link>
-          <Link to="/products-in" style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "12px 15px",
-            marginBottom: "10px",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "5px",
-            transition: "background-color 0.3s"
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = "#0056b3"}
-          onMouseOut={(e) => e.target.style.backgroundColor = "transparent"}
-          >
-            <MoveToInboxIcon style={{ marginRight: "10px" }} />
-            Barang Masuk
-          </Link>
-          <Link to="/products-out" style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "12px 15px",
-            marginBottom: "20px",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "5px",
-            transition: "background-color 0.3s"
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = "#0056b3"}
-          onMouseOut={(e) => e.target.style.backgroundColor = "transparent"}
-          >
-            <OutboxIcon style={{ marginRight: "10px" }} />
-            Barang Keluar
-          </Link>
-          <hr style={{ borderColor: "rgba(255,255,255,0.3)", margin: "20px 0" }} />
-          <button
-            onClick={logout}
-            style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: "#dc3545",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              fontSize: "16px",
-              transition: "background-color 0.3s",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
-            onMouseOver={(e) => e.target.style.backgroundColor = "#c82333"}
-            onMouseOut={(e) => e.target.style.backgroundColor = "#dc3545"}
-          >
-            <LogoutIcon style={{ marginRight: "10px" }} />
-            Logout
-          </button>
-        </nav>
-      </aside>
+  const drawerWidth = 280;
 
-      <main style={{
-        padding: 20,
-        flex: 1,
-        backgroundColor: "#f8f9fa",
-        minHeight: "100vh",
-        boxSizing: 'border-box',
-        marginLeft: sidebarOpen ? 250 : 0,
-        transition: "margin-left 0.3s ease",
-        width: "100%"
+  const menuItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'Produk', icon: <InventoryIcon />, path: '/products' },
+    { text: 'Barang Masuk', icon: <MoveToInboxIcon />, path: '/products-in' },
+    { text: 'Barang Keluar', icon: <OutboxIcon />, path: '/products-out' },
+  ];
+
+  const drawer = (
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{
+        p: 2,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderBottom: 1,
+        borderColor: 'rgba(255, 255, 255, 0.3)'
       }}>
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          style={{
-            position: "fixed",
-            top: "10px",
-            left: "10px",
-            zIndex: 1001,
-            padding: "10px",
-            backgroundColor: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer"
+        <StoreIcon sx={{ mr: 1, color: 'white' }} />
+        <Typography variant="h6" fontWeight="bold" color="white">
+          POS Kasir
+        </Typography>
+      </Box>
+
+      <List sx={{ flex: 1, pt: 2 }}>
+        {menuItems.map((item) => (
+          <ListItem key={item.path} disablePadding>
+            <ListItemButton
+              component={Link}
+              to={item.path}
+              onClick={handleMenuClick}
+              selected={location.pathname === item.path}
+              sx={{
+                mx: 1,
+                mb: 0.5,
+                borderRadius: 2,
+                color: 'white',
+                transition: 'all 0.2s ease-in-out',
+                '&.Mui-selected': {
+                  backgroundColor: 'primary.light',
+                  color: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.light',
+                  },
+                  '& .MuiListItemIcon-root': {
+                    color: 'primary.main',
+                  },
+                },
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText primary={item.text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+
+      <Divider sx={{ mx: 2, mb: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }} />
+
+      <Box sx={{ p: 2 }}>
+        <Button
+          onClick={logout}
+          fullWidth
+          startIcon={<LogoutIcon />}
+          sx={{
+            color: 'white',
+            border: 1,
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            borderRadius: 2,
+            py: 1,
+            transition: 'all 0.2s ease-in-out',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              borderColor: 'white',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            },
           }}
         >
-          <MenuIcon />
-        </button>
+          Logout
+        </Button>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      {/* App Bar */}
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { md: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%' },
+          ml: { md: sidebarOpen ? `${drawerWidth}px` : 0 },
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="toggle drawer"
+            onClick={handleDrawerToggle}
+            edge="start"
+            sx={{ mr: 2 }}
+          >
+            {sidebarOpen ? <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            Sistem Point of Sale
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* Sidebar Drawer */}
+      <Drawer
+        variant={isMobile ? 'temporary' : 'persistent'}
+        open={sidebarOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            backgroundColor: 'primary.main',
+            borderRight: 1,
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+          },
+        }}
+      >
+        {drawer}
+      </Drawer>
+
+      {/* Main Content */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { md: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%' },
+          transition: theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+          backgroundColor: 'background.default',
+          minHeight: '100vh',
+        }}
+      >
+        <Toolbar /> {/* This creates space for the AppBar */}
         {children}
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
 }

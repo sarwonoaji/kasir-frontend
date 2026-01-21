@@ -1,6 +1,33 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../../lib/axios";
+import {
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  CircularProgress,
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Divider,
+  IconButton,
+} from "@mui/material";
+import {
+  Print as PrintIcon,
+  ArrowBack as ArrowBackIcon,
+  Inventory as InventoryIcon,
+  Receipt as ReceiptIcon,
+  CalendarToday as CalendarIcon,
+  Notes as NotesIcon,
+} from "@mui/icons-material";
 
 export default function ProductInShow() {
   const { id } = useParams();
@@ -15,8 +42,33 @@ export default function ProductInShow() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <p>Loading...</p>;
-  if (!data) return <p>Data tidak ditemukan</p>;
+  if (loading) return (
+    <Container maxWidth="lg" sx={{ py: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <CircularProgress size={60} />
+        <Typography variant="h6" color="primary">Memuat detail barang masuk...</Typography>
+      </Box>
+    </Container>
+  );
+
+  if (!data) return (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, textAlign: 'center', borderRadius: 2 }}>
+        <Typography variant="h5" color="error" gutterBottom>
+          Data tidak ditemukan
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<ArrowBackIcon />}
+          component={Link}
+          to="/products-in"
+          sx={{ mt: 2 }}
+        >
+          Kembali ke Daftar Barang Masuk
+        </Button>
+      </Paper>
+    </Container>
+  );
 
   const totalQty = data.details.reduce(
     (sum, d) => sum + Number(d.quantity),
@@ -28,7 +80,6 @@ export default function ProductInShow() {
     0
   );
 
-  // 🔥 OPSI 1 — PRINT PDF VIA AXIOS (AMAN)
   const printPdf = async () => {
     const res = await api.get(
       `/product-ins/${id}/print`,
@@ -43,53 +94,138 @@ export default function ProductInShow() {
   };
 
   return (
-    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '20px' }}>
-      <div style={{ backgroundColor: 'white', border: '1px solid #007bff', borderRadius: '8px', padding: '20px', marginBottom: '20px' }}>
-        <h2 style={{ color: '#007bff', marginBottom: '20px' }}>Detail Barang Masuk</h2>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+        <IconButton component={Link} to="/products-in" color="primary">
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
+          Detail Barang Masuk
+        </Typography>
+      </Box>
 
-        <p style={{ marginBottom: '10px' }}><b>No Transaksi:</b> {data.no_transaksi}</p>
-        <p style={{ marginBottom: '10px' }}><b>Tanggal:</b> {data.date}</p>
-        <p style={{ marginBottom: '20px' }}><b>Catatan:</b> {data.remark || "-"}</p>
+      {/* Header Information */}
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} md={6}>
+          <Card elevation={2} sx={{ borderRadius: 2 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <ReceiptIcon color="primary" />
+                <Typography variant="h6" fontWeight="bold">
+                  Informasi Transaksi
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Typography variant="body1" fontWeight="medium" color="text.secondary">
+                  No Transaksi:
+                </Typography>
+                <Typography variant="body1" fontWeight="bold" color="primary">
+                  {data.no_transaksi}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <CalendarIcon fontSize="small" color="action" />
+                <Typography variant="body2" color="text.secondary">
+                  Tanggal: {data.date}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <NotesIcon fontSize="small" color="action" />
+                <Typography variant="body2" color="text.secondary">
+                  Catatan: {data.remark || "-"}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
-              <th style={{ padding: '10px', textAlign: 'left' }}>No</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Produk</th>
-              <th style={{ padding: '10px', textAlign: 'center' }}>Qty</th>
-              <th style={{ padding: '10px', textAlign: 'right' }}>Harga</th>
-              <th style={{ padding: '10px', textAlign: 'right' }}>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.details.map((d, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid #ddd' }}>
-                <td style={{ padding: '10px' }}>{i + 1}</td>
-                <td style={{ padding: '10px' }}>{d.product?.name}</td>
-                <td style={{ padding: '10px', textAlign: 'center' }}>{d.quantity}</td>
-                <td style={{ padding: '10px', textAlign: 'right' }}>
-                  Rp {Number(d.price).toLocaleString("id-ID")}
-                </td>
-                <td style={{ padding: '10px', textAlign: 'right' }}>
-                  Rp {Number(d.total_price).toLocaleString("id-ID")}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr style={{ backgroundColor: '#f8f9fa', fontWeight: 'bold' }}>
-              <th colSpan="2" style={{ padding: '10px' }}>TOTAL</th>
-              <th style={{ padding: '10px', textAlign: 'center' }}>{totalQty}</th>
-              <th style={{ padding: '10px' }}></th>
-              <th style={{ padding: '10px', textAlign: 'right' }}>Rp {totalValue.toLocaleString("id-ID")}</th>
-            </tr>
-          </tfoot>
-        </table>
+        <Grid item xs={12} md={6}>
+          <Card elevation={2} sx={{ borderRadius: 2 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <InventoryIcon color="primary" />
+                <Typography variant="h6" fontWeight="bold">
+                  Ringkasan Barang
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="body2" color="text.secondary">Total Item:</Typography>
+                <Typography variant="body1" fontWeight="bold" color="primary">
+                  {totalQty} item
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" color="text.secondary">Total Nilai:</Typography>
+                <Typography variant="body1" fontWeight="bold" color="success.main">
+                  Rp {totalValue.toLocaleString("id-ID")}
+                </Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-        <button onClick={printPdf} style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '10px 15px', borderRadius: '4px', cursor: 'pointer', marginRight: '10px' }}>🖨 Print PDF</button>
-        <br /><br />
-        <Link to="/products-in" style={{ color: '#007bff', textDecoration: 'none' }}>⬅ Kembali</Link>
-      </div>
-    </div>
+      {/* Products Table */}
+      <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <Box sx={{ p: 3, borderBottom: 1, borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <InventoryIcon color="primary" />
+            <Typography variant="h6" fontWeight="bold">
+              Detail Produk ({totalQty} item)
+            </Typography>
+          </Box>
+        </Box>
+
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: 'primary.main' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>No</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Produk</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}>Qty</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'right' }}>Harga</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', textAlign: 'right' }}>Total</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.details.map((d, i) => (
+                <TableRow key={i} hover>
+                  <TableCell>{i + 1}</TableCell>
+                  <TableCell sx={{ fontWeight: 'medium' }}>{d.product?.name}</TableCell>
+                  <TableCell sx={{ textAlign: 'center', fontWeight: 'medium' }}>{d.quantity}</TableCell>
+                  <TableCell sx={{ textAlign: 'right' }}>
+                    Rp {Number(d.price).toLocaleString("id-ID")}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: 'right', fontWeight: 'bold' }}>
+                    Rp {Number(d.total_price).toLocaleString("id-ID")}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+
+      {/* Action Buttons */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          component={Link}
+          to="/products-in"
+        >
+          Kembali ke Daftar
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<PrintIcon />}
+          onClick={printPdf}
+          size="large"
+        >
+          Print PDF
+        </Button>
+      </Box>
+    </Container>
   );
 }

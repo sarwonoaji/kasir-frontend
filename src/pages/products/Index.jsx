@@ -1,6 +1,30 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../lib/axios";
+import {
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Box,
+  IconButton,
+  Tooltip,
+  Chip,
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Visibility as VisibilityIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Inventory as InventoryIcon,
+  QrCode as QrCodeIcon,
+} from "@mui/icons-material";
 
 export default function ProductIndex() {
   const [products, setProducts] = useState([]);
@@ -21,75 +45,104 @@ export default function ProductIndex() {
   }, []);
 
   return (
-    <div style={{ padding: 20, backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      <h2 style={{ color: '#007bff', marginBottom: '20px' }}>📦 Produk</h2>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <InventoryIcon color="primary" sx={{ fontSize: 40 }} />
+          <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
+            Daftar Produk
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
+          startIcon={<AddIcon />}
+          component={Link}
+          to="/products/create"
+          sx={{ px: 3, py: 1.5 }}
+        >
+          Tambah Produk
+        </Button>
+      </Box>
 
-      <Link to="/products/create">
-        <button style={{
-          padding: '10px 20px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          marginBottom: '20px'
-        }}>
-          + Tambah Produk
-        </button>
-      </Link>
-
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        borderTop: '4px solid #007bff'
-      }}>
-        <table style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          border: '1px solid #ddd'
-        }}>
-          <thead>
-            <tr style={{ backgroundColor: '#007bff', color: 'white' }}>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Barcode</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Nama</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Harga</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Stok</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Satuan</th>
-              <th style={{ padding: '10px', textAlign: 'left' }}>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map(p => (
-              <tr key={p.id} style={{ borderBottom: '1px solid #ddd' }}>
-                <td style={{ padding: '10px', color: '#333' }}>{p.barcode}</td>
-                <td style={{ padding: '10px', color: '#333' }}>{p.name}</td>
-                <td style={{ padding: '10px', color: '#333' }}>Rp {p.price}</td>
-                <td style={{ padding: '10px', color: '#333' }}>{p.stock}</td>
-                <td style={{ padding: '10px', color: '#333' }}>{p.unit}</td>
-                <td style={{ padding: '10px' }}>
-                  <Link to={`/products/edit/${p.id}`} style={{ color: '#007bff', textDecoration: 'none', marginRight: '10px' }}>Edit</Link>
-                  <button
-                    onClick={() => remove(p.id)}
-                    style={{
-                      padding: '5px 10px',
-                      backgroundColor: '#dc3545',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Hapus
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: 'primary.main' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Barcode</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Nama Produk</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem', textAlign: 'right' }}>Harga</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem', textAlign: 'center' }}>Stok</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Satuan</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>Aksi</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {products.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 6 }}>
+                    <Typography variant="h6" color="text.secondary">
+                      Tidak ada data produk
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                products.map((p) => (
+                  <TableRow key={p.id} hover sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <QrCodeIcon fontSize="small" color="action" />
+                        <Typography variant="body2" fontFamily="monospace" fontWeight="medium">
+                          {p.barcode}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'medium' }}>{p.name}</TableCell>
+                    <TableCell sx={{ textAlign: 'right', fontWeight: 'bold', color: 'success.main' }}>
+                      Rp {Number(p.price).toLocaleString()}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: 'center' }}>
+                      <Chip
+                        label={p.stock}
+                        size="small"
+                        color={p.stock > 10 ? 'success' : p.stock > 0 ? 'warning' : 'error'}
+                        variant="outlined"
+                      />
+                    </TableCell>
+                    <TableCell>{p.unit || '-'}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Tooltip title="Edit Produk">
+                          <IconButton
+                            component={Link}
+                            to={`/products/edit/${p.id}`}
+                            color="secondary"
+                            size="small"
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Hapus Produk">
+                          <IconButton
+                            onClick={() => remove(p.id)}
+                            color="error"
+                            size="small"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Container>
   );
 }
 
