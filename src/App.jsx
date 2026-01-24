@@ -3,6 +3,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 
+import ShiftIndex from "./pages/shift/Index";
+import ShiftCreate from "./pages/shift/Create";
+import ShiftEdit from "./pages/shift/Edit";
+
+
 import ProductIndex from "./pages/products/Index";
 import ProductCreate from "./pages/products/Create";
 import ProductEdit from "./pages/products/Edit";
@@ -42,6 +47,34 @@ export default function App() {
           element={
             <MainLayout>
               <Dashboard />
+            </MainLayout>
+          }
+        />
+
+        {/* SHIFT*/}
+        <Route
+          path="/shift"
+          element={
+            <MainLayout>
+              <ShiftIndex />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/shift/create"
+          element={
+            <MainLayout>
+              <ShiftCreate />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/shift/edit/:id"
+          element={
+            <MainLayout>
+              <ShiftEdit />
             </MainLayout>
           }
         />

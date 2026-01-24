@@ -55,6 +55,7 @@ export default function MainLayout({ children }) {
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'Shift', icon: <InventoryIcon />, path: '/shift' },
     { text: 'Produk', icon: <InventoryIcon />, path: '/products' },
     { text: 'Barang Masuk', icon: <MoveToInboxIcon />, path: '/products-in' },
     { text: 'Barang Keluar', icon: <OutboxIcon />, path: '/products-out' },
