@@ -26,6 +26,8 @@ import {
   Store as StoreIcon,
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
+  People as PeopleIcon,
+  CreditCard as CreditCardIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
 
@@ -59,6 +61,8 @@ export default function MainLayout({ children }) {
     { text: 'Produk', icon: <InventoryIcon />, path: '/products' },
     { text: 'Barang Masuk', icon: <MoveToInboxIcon />, path: '/products-in' },
     { text: 'Barang Keluar', icon: <OutboxIcon />, path: '/products-out' },
+    { text: 'Session Kasir', icon: <CreditCardIcon />, path: '/cashier-sessions' },
+    { text: 'Manajemen User', icon: <PeopleIcon />, path: '/users' },
   ];
 
   const drawer = (

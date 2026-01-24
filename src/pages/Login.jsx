@@ -12,8 +12,18 @@ export default function Login() {
     setError("");
     try {
       const res = await api.post("/login", { email, password });
+      console.log("Login response:", res.data);
       localStorage.setItem("token", res.data.token);
-      window.location.href = "/dashboard";
+      localStorage.setItem("role", res.data.role);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+      console.log("User saved to localStorage:", res.data.user);
+      
+      // Redirect berdasarkan role
+      if (res.data.role === "cashier") {
+        window.location.href = "/cashier/create";
+      } else {
+        window.location.href = "/dashboard";
+      }
     } catch (err) {
       setError("Login gagal. Periksa email dan password Anda.");
     } finally {

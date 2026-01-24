@@ -7,6 +7,9 @@ import ShiftIndex from "./pages/shift/Index";
 import ShiftCreate from "./pages/shift/Create";
 import ShiftEdit from "./pages/shift/Edit";
 
+import UserIndex from "./pages/users/Index";
+import UserCreate from "./pages/users/Create";
+import UserEdit from "./pages/users/Edit";
 
 import ProductIndex from "./pages/products/Index";
 import ProductCreate from "./pages/products/Create";
@@ -21,7 +24,12 @@ import ProductOutIndex from "./pages/products-out/Index";
 import ProductOutCreate from "./pages/products-out/Create";
 import ProductOutShow from "./pages/products-out/Show";
 import ProductOutEdit from "./pages/products-out/Edit";
-// import ProductOutEdit from "./pages/products-out/Edit";
+
+import CashierSessionIndex from "./pages/cashier-sessions/Index";
+import CashierSessionOpen from "./pages/cashier-sessions/Open";
+import CashierSessionActive from "./pages/cashier-sessions/Active";
+
+import CashierCreate from "./pages/chasier/Create";
 
 import MainLayout from "./layouts/MainLayout";
 import { isLoggedIn } from "./lib/auth";
@@ -175,6 +183,68 @@ export default function App() {
               <ProductOutEdit />
             </MainLayout>
           }
+        />
+
+        {/* USERS */}
+        <Route
+          path="/users"
+          element={
+            <MainLayout>
+              <UserIndex />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/users/create"
+          element={
+            <MainLayout>
+              <UserCreate />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/users/edit/:id"
+          element={
+            <MainLayout>
+              <UserEdit />
+            </MainLayout>
+          }
+        />
+
+        {/* CASHIER SESSIONS */}
+        <Route
+          path="/cashier-sessions"
+          element={
+            <MainLayout>
+              <CashierSessionIndex />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/cashier-sessions/open"
+          element={
+            <MainLayout>
+              <CashierSessionOpen />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/cashier-sessions/active"
+          element={
+            <MainLayout>
+              <CashierSessionActive />
+            </MainLayout>
+          }
+        />
+
+        {/* CASHIER */}
+        <Route
+          path="/cashier/create"
+          element={<CashierCreate />}
         />
       </Routes>
     </BrowserRouter>
