@@ -1,11 +1,44 @@
 import { useState } from "react";
 import api from "../lib/axios";
+import { setSessionData, setUserData } from "../lib/auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const handleCashierRedirect = async (token) => {
+    try {
+      // Cek apakah ada active session
+      const sessionRes = await api.get("/cashier-sessions/current", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Jika ada session aktif, langsung ke cashier/create
+      if (sessionRes.data && sessionRes.data.is_open) {
+        const sessionData = {
+          id: sessionRes.data.id,
+          user_id: sessionRes.data.user_id,
+          shift_id: sessionRes.data.shift_id,
+          opening_balance: sessionRes.data.opening_balance,
+          closing_balance: sessionRes.data.closing_balance,
+          is_open: sessionRes.data.is_open,
+          opened_at: sessionRes.data.opened_at,
+          closed_at: sessionRes.data.closed_at,
+        };
+        setSessionData(sessionData);
+        window.location.href = "/cashier/create";
+        return;
+      }
+    } catch (err) {
+      // 404 atau error = tidak ada session aktif, tampilkan form open
+      console.log("No active session, show open form");
+    }
+    
+    // Jika tidak ada session aktif, tampilkan form open session
+    window.location.href = "/chasier/session/open";
+  };
 
   const submit = async () => {
     setLoading(true);
@@ -15,13 +48,22 @@ export default function Login() {
       console.log("Login response:", res.data);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      setUserData(res.data.user);
       console.log("User saved to localStorage:", res.data.user);
+      
+      // Jika cashier dan ada session data dari backend, simpan
+      if (res.data.role === "cashier" && res.data.session) {
+        setSessionData(res.data.session);
+      }
       
       // Redirect berdasarkan role
       if (res.data.role === "cashier") {
-        window.location.href = "/cashier/create";
+        // Cashier: cek apakah ada active session
+        // Jika ada → /cashier/create
+        // Jika tidak → /chasier/session/open
+        await handleCashierRedirect(res.data.token);
       } else {
+        // Admin: langsung ke dashboard
         window.location.href = "/dashboard";
       }
     } catch (err) {

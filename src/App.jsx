@@ -30,223 +30,292 @@ import CashierSessionOpen from "./pages/cashier-sessions/Open";
 import CashierSessionActive from "./pages/cashier-sessions/Active";
 
 import CashierCreate from "./pages/chasier/Create";
+import CashierSessionOpenForm from "./pages/chasier/SessionOpen";
+import CashierSessionActiveForm from "./pages/chasier/SessionActive";
 
 import MainLayout from "./layouts/MainLayout";
+import CashierLayout from "./layouts/CashierLayout";
 import { isLoggedIn } from "./lib/auth";
+import ProtectedRoute from "./lib/ProtectedRoute";
+import { SessionProvider } from "./lib/SessionContext";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* LOGIN */}
-        <Route path="/login" element={<Login />} />
+      <SessionProvider>
+        <Routes>
+          {/* LOGIN */}
+          <Route path="/login" element={<Login />} />
 
-        {/* ROOT */}
-        <Route
-          path="/"
-          element={
-            isLoggedIn() ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
-          }
-        />
+          {/* ROOT */}
+          <Route
+            path="/"
+            element={
+              isLoggedIn() ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+            }
+          />
 
-        {/* DASHBOARD */}
-        <Route
-          path="/dashboard"
-          element={
-            <MainLayout>
-              <Dashboard />
-            </MainLayout>
-          }
-        />
+          {/* DASHBOARD - Can access without active session (read-only info) */}
+          <Route
+            path="/dashboard"
+            element={
+              <MainLayout>
+                <Dashboard />
+              </MainLayout>
+            }
+          />
 
-        {/* SHIFT*/}
-        <Route
-          path="/shift"
-          element={
-            <MainLayout>
-              <ShiftIndex />
-            </MainLayout>
-          }
-        />
+          {/* SHIFT - Read-only can access, but create/edit need active session */}
+          <Route
+            path="/shift"
+            element={
+              <MainLayout>
+                <ShiftIndex />
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/shift/create"
-          element={
-            <MainLayout>
-              <ShiftCreate />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/shift/create"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ShiftCreate />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/shift/edit/:id"
-          element={
-            <MainLayout>
-              <ShiftEdit />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/shift/edit/:id"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ShiftEdit />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        {/* PRODUCTS */}
-        <Route
-          path="/products"
-          element={
-            <MainLayout>
-              <ProductIndex />
-            </MainLayout>
-          }
-        />
+          {/* PRODUCTS - Read-only can access */}
+          <Route
+            path="/products"
+            element={
+              <MainLayout>
+                <ProductIndex />
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/products/create"
-          element={
-            <MainLayout>
-              <ProductCreate />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/products/create"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductCreate />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/products/edit/:id"
-          element={
-            <MainLayout>
-              <ProductEdit />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/products/edit/:id"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductEdit />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        {/* PRODUCTS IN */}
-        <Route
-          path="/products-in"
-          element={
-            <MainLayout>
-              <ProductInIndex />
-            </MainLayout>
-          }
-        />
+          {/* PRODUCTS IN - Needs active session */}
+          <Route
+            path="/products-in"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductInIndex />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/products-in/create"
-          element={
-            <MainLayout>
-              <ProductInCreate />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/products-in/create"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductInCreate />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/products-in/edit/:id"
-          element={
-            <MainLayout>
-              <ProductInEdit />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/products-in/:id"
-          element={
-            <MainLayout>
-              <ProductInShow />
-            </MainLayout>
-          }
-        />
-        {/* PRODUCTS OUT */}
-        <Route
-          path="/products-out"
-          element={
-            <MainLayout>
-              <ProductOutIndex />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/products-in/edit/:id"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductInEdit />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/products-in/:id"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductInShow />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/products-out/create"
-          element={
-            <MainLayout>
-              <ProductOutCreate />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/products-out/:id"
-          element={
-            <MainLayout>
-              <ProductOutShow />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/products-out/edit/:id"
-          element={
-            <MainLayout>
-              <ProductOutEdit />
-            </MainLayout>
-          }
-        />
+          {/* PRODUCTS OUT - Needs active session */}
+          <Route
+            path="/products-out"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductOutIndex />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        {/* USERS */}
-        <Route
-          path="/users"
-          element={
-            <MainLayout>
-              <UserIndex />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/products-out/create"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductOutCreate />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/products-out/:id"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductOutShow />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/products-out/edit/:id"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <ProductOutEdit />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/users/create"
-          element={
-            <MainLayout>
-              <UserCreate />
-            </MainLayout>
-          }
-        />
+          {/* USERS */}
+          <Route
+            path="/users"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <UserIndex />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/users/edit/:id"
-          element={
-            <MainLayout>
-              <UserEdit />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/users/create"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <UserCreate />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        {/* CASHIER SESSIONS */}
-        <Route
-          path="/cashier-sessions"
-          element={
-            <MainLayout>
-              <CashierSessionIndex />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/users/edit/:id"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <UserEdit />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/cashier-sessions/open"
-          element={
-            <MainLayout>
-              <CashierSessionOpen />
-            </MainLayout>
-          }
-        />
+          {/* CASHIER SESSIONS */}
+          <Route
+            path="/cashier-sessions"
+            element={
+              <MainLayout>
+                <CashierSessionIndex />
+              </MainLayout>
+            }
+          />
 
-        <Route
-          path="/cashier-sessions/active"
-          element={
-            <MainLayout>
-              <CashierSessionActive />
-            </MainLayout>
-          }
-        />
+          <Route
+            path="/cashier-sessions/open"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <CashierSessionOpen />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
 
-        {/* CASHIER */}
-        <Route
-          path="/cashier/create"
-          element={<CashierCreate />}
-        />
-      </Routes>
+          <Route
+            path="/cashier-sessions/active"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <CashierSessionActive />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
+
+          {/* CASHIER */}
+          <Route
+            path="/cashier/create"
+            element={
+              <CashierLayout>
+                <ProtectedRoute>
+                  <CashierCreate />
+                </ProtectedRoute>
+              </CashierLayout>
+            }
+          />
+
+          {/* CASHIER SESSION MANAGEMENT - Khusus Cashier */}
+          <Route
+            path="/chasier/session/open"
+            element={
+              <CashierLayout>
+                <CashierSessionOpenForm />
+              </CashierLayout>
+            }
+          />
+
+          <Route
+            path="/chasier/session/active"
+            element={
+              <CashierLayout>
+                <ProtectedRoute>
+                  <CashierSessionActiveForm />
+                </ProtectedRoute>
+              </CashierLayout>
+            }
+          />
+        </Routes>
+      </SessionProvider>
     </BrowserRouter>
   );
 }

@@ -93,9 +93,9 @@ export default function CashierSessionActive() {
       setSession(null);
       setClosingData({ closing_balance: "", notes: "" });
       
-      // Redirect ke history setelah 2 detik
+      // Redirect ke halaman open session untuk buka session baru atau logout
       setTimeout(() => {
-        navigate("/cashier-sessions");
+        navigate("/cashier-sessions/open");
       }, 2000);
     } catch (err) {
       alert(err.response?.data?.message || "Gagal menutup session");

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../lib/axios";
+import { useSession } from "../../lib/SessionContext";
 import {
   Container,
   Paper,
@@ -18,8 +19,11 @@ import { Save as SaveIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-materia
 
 export default function CashierSessionOpen() {
   const navigate = useNavigate();
+  const { refreshSession } = useSession();
   const [shifts, setShifts] = useState([]);
+  const [cashiers, setCashiers] = useState([]);
   const [formData, setFormData] = useState({
+    user_id: "",
     shift_id: "",
     opening_balance: "",
   });
@@ -28,17 +32,21 @@ export default function CashierSessionOpen() {
   const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
-    fetchShifts();
+    fetchInitialData();
   }, []);
 
-  const fetchShifts = async () => {
+  const fetchInitialData = async () => {
     try {
       setInitialLoading(true);
-      const res = await api.get("/shifts");
-      setShifts(res.data);
+      const [shiftsRes, cashiersRes] = await Promise.all([
+        api.get("/shifts"),
+        api.get("/users?role=cashier") // Fetch cashier users
+      ]);
+      setShifts(shiftsRes.data);
+      setCashiers(cashiersRes.data);
       setError("");
     } catch (err) {
-      setError("Gagal mengambil data shift");
+      setError("Gagal mengambil data");
       console.error(err);
     } finally {
       setInitialLoading(false);
@@ -56,7 +64,7 @@ export default function CashierSessionOpen() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.shift_id || !formData.opening_balance) {
+    if (!formData.user_id || !formData.shift_id || !formData.opening_balance) {
       setError("Semua field harus diisi");
       return;
     }
@@ -70,12 +78,23 @@ export default function CashierSessionOpen() {
       setLoading(true);
       setError("");
       const res = await api.post("/cashier-sessions/open", {
+        user_id: parseInt(formData.user_id),
         shift_id: parseInt(formData.shift_id),
         opening_balance: parseFloat(formData.opening_balance),
       });
       
-      // Redirect ke halaman active session setelah berhasil
-      navigate("/cashier-sessions/active", { 
+      // Success notification
+      alert("Session kasir berhasil dibuka");
+      
+      // Reset form
+      setFormData({
+        user_id: "",
+        shift_id: "",
+        opening_balance: "",
+      });
+      
+      // Redirect ke halaman history/list setelah berhasil
+      navigate("/cashier-sessions", { 
         state: { message: "Session kasir berhasil dibuka" } 
       });
     } catch (err) {
@@ -125,6 +144,22 @@ export default function CashierSessionOpen() {
 
         <form onSubmit={handleSubmit}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl fullWidth required>
+              <InputLabel>Pilih Kasir</InputLabel>
+              <Select
+                name="user_id"
+                value={formData.user_id}
+                onChange={handleChange}
+                label="Pilih Kasir"
+              >
+                {cashiers.map((cashier) => (
+                  <MenuItem key={cashier.id} value={cashier.id}>
+                    {cashier.name} ({cashier.email})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
             <FormControl fullWidth required>
               <InputLabel>Pilih Shift</InputLabel>
               <Select

@@ -1,5 +1,6 @@
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { isLoggedIn, logout } from "../lib/auth";
+import { useSession } from "../lib/SessionContext";
 import {
   AppBar,
   Toolbar,
@@ -16,6 +17,8 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
+  Alert,
+  Chip,
 } from "@mui/material";
 import {
   Dashboard as DashboardIcon,
@@ -28,6 +31,8 @@ import {
   ChevronLeft as ChevronLeftIcon,
   People as PeopleIcon,
   CreditCard as CreditCardIcon,
+  Warning as WarningIcon,
+  CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
 
@@ -36,6 +41,9 @@ export default function MainLayout({ children }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
+  const { session, isSessionOpen, loading } = useSession();
+  const role = localStorage.getItem("role");
+  const isCashier = role === "cashier";
 
   // Auto-close sidebar on mobile
   const handleDrawerToggle = () => {
@@ -218,6 +226,54 @@ export default function MainLayout({ children }) {
         }}
       >
         <Toolbar /> {/* This creates space for the AppBar */}
+        
+        {/* Session Status Alert - Hanya untuk Cashier */}
+        {!loading && isCashier && (
+          <>
+            {isSessionOpen ? (
+              <Alert 
+                severity="success" 
+                icon={<CheckCircleIcon />}
+                sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
+              >
+                <Box>
+                  <Typography variant="subtitle2" fontWeight="bold">
+                    Session Kasir Aktif
+                  </Typography>
+                  <Typography variant="caption">
+                    Saldo Pembukaan: Rp {session?.opening_balance?.toLocaleString('id-ID') || 0}
+                  </Typography>
+                </Box>
+              </Alert>
+            ) : (
+              <Alert 
+                severity="warning" 
+                icon={<WarningIcon />}
+                action={
+                  <Button 
+                    color="inherit" 
+                    size="small"
+                    component={Link}
+                    to="/cashier-sessions/open"
+                  >
+                    Buka Session
+                  </Button>
+                }
+                sx={{ mb: 2 }}
+              >
+                <Box>
+                  <Typography variant="subtitle2" fontWeight="bold">
+                    Session Kasir Belum Dibuka
+                  </Typography>
+                  <Typography variant="caption">
+                    Anda tidak dapat melakukan transaksi sampai membuka session kasir terlebih dahulu. Anda masih dapat melihat data stok.
+                  </Typography>
+                </Box>
+              </Alert>
+            )}
+          </>
+        )}
+        
         {children}
       </Box>
     </Box>
