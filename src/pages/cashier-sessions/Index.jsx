@@ -302,6 +302,17 @@ export default function CashierSessionIndex() {
                 </Typography>
               </Box>
 
+              {selectedSession.expected_balance && (
+                <Box>
+                  <Typography variant="body2" color="textSecondary">
+                    Expected Balance
+                  </Typography>
+                  <Typography variant="body1" fontWeight="bold">
+                    Rp {parseFloat(selectedSession.expected_balance).toLocaleString('id-ID')}
+                  </Typography>
+                </Box>
+              )}
+
               {selectedSession.closing_balance && (
                 <>
                   <Box>
@@ -320,9 +331,9 @@ export default function CashierSessionIndex() {
                     <Typography 
                       variant="body1" 
                       fontWeight="bold"
-                      color={parseFloat(selectedSession.closing_balance) - parseFloat(selectedSession.opening_balance) >= 0 ? 'success.main' : 'error.main'}
+                      color={parseFloat(selectedSession.closing_balance) - parseFloat(selectedSession.expected_balance || selectedSession.opening_balance) >= 0 ? 'success.main' : 'error.main'}
                     >
-                      Rp {Math.abs(parseFloat(selectedSession.closing_balance) - parseFloat(selectedSession.opening_balance)).toLocaleString('id-ID')}
+                      Rp {Math.abs(parseFloat(selectedSession.closing_balance) - parseFloat(selectedSession.expected_balance || selectedSession.opening_balance)).toLocaleString('id-ID')}
                     </Typography>
                   </Box>
                 </>

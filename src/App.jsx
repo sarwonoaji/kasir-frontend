@@ -32,6 +32,7 @@ import CashierSessionActive from "./pages/cashier-sessions/Active";
 import CashierCreate from "./pages/chasier/Create";
 import CashierSessionOpenForm from "./pages/chasier/SessionOpen";
 import CashierSessionActiveForm from "./pages/chasier/SessionActive";
+import CashierStock from "./pages/chasier/Stock";
 
 import MainLayout from "./layouts/MainLayout";
 import CashierLayout from "./layouts/CashierLayout";
@@ -260,7 +261,7 @@ export default function App() {
             }
           />
 
-          <Route
+          {/* <Route
             path="/cashier-sessions/open"
             element={
               <MainLayout>
@@ -269,7 +270,7 @@ export default function App() {
                 </ProtectedRoute>
               </MainLayout>
             }
-          />
+          /> */}
 
           <Route
             path="/cashier-sessions/active"
@@ -290,6 +291,15 @@ export default function App() {
                 <ProtectedRoute>
                   <CashierCreate />
                 </ProtectedRoute>
+              </CashierLayout>
+            }
+          />
+
+          <Route
+            path="/cashier/stock"
+            element={
+              <CashierLayout>
+                <CashierStock />
               </CashierLayout>
             }
           />

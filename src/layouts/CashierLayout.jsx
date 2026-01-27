@@ -6,9 +6,11 @@ import {
   Toolbar,
   Typography,
   Box,
-  Alert,
   Button,
   IconButton,
+  Avatar,
+  Menu,
+  MenuItem,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
@@ -18,12 +20,41 @@ import {
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
   History as HistoryIcon,
+  Inventory as InventoryIcon,
 } from "@mui/icons-material";
+import { useState, useEffect } from "react";
 
 export default function CashierLayout({ children }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { session, isSessionOpen, loading } = useSession();
+  const [userInfo, setUserInfo] = useState({ name: "User", email: "" });
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  useEffect(() => {
+    // Ambil user info dari localStorage
+    const userFromStorage = localStorage.getItem("user");
+    if (userFromStorage) {
+      try {
+        const userData = JSON.parse(userFromStorage);
+        if (userData.name) {
+          setUserInfo(userData);
+        } else if (userData.user && userData.user.name) {
+          setUserInfo(userData.user);
+        }
+      } catch (error) {
+        console.error("Error parsing user data", error);
+      }
+    }
+  }, []);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   if (!isLoggedIn()) {
     return <Navigate to="/login" />;
@@ -55,12 +86,62 @@ export default function CashierLayout({ children }) {
           
           <Button
             color="inherit"
-            startIcon={<LogoutIcon />}
-            onClick={logout}
             size="small"
+            startIcon={<InventoryIcon />}
+            component={Link}
+            to="/cashier/stock"
+            sx={{ mr: 2 }}
           >
-            Logout
+            Lihat Stock
           </Button>
+          
+          {/* User Info & Menu */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2 }}>
+            <Typography variant="body2">
+              {userInfo.name}
+            </Typography>
+            <IconButton
+              onClick={handleMenuOpen}
+              sx={{ 
+                p: 0,
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+              }}
+            >
+              <Avatar 
+                sx={{ 
+                  width: 36, 
+                  height: 36, 
+                  bgcolor: '#ff9800',
+                  cursor: 'pointer'
+                }}
+              >
+                {userInfo.name?.charAt(0).toUpperCase()}
+              </Avatar>
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              <MenuItem disabled>
+                <Typography variant="body2" color="textSecondary">
+                  {userInfo.email}
+                </Typography>
+              </MenuItem>
+              <MenuItem onClick={logout} sx={{ color: 'error.main' }}>
+                <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
+                Logout
+              </MenuItem>
+            </Menu>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -78,17 +159,11 @@ export default function CashierLayout({ children }) {
         {!loading && (
           <>
             {isSessionOpen ? (
-              <Alert
-                severity="success"
-                icon={<CheckCircleIcon />}
-                sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
-              >
-                <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    ✓ Session Kasir Aktif
-                  </Typography>
-                  <Typography variant="caption">
-                    Saldo Pembukaan: Rp {session?.opening_balance?.toLocaleString('id-ID') || 0}
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CheckCircleIcon color="success" fontSize="small" />
+                  <Typography variant="body2" color="success.main" fontWeight="medium">
+                    Session Kasir Aktif
                   </Typography>
                 </Box>
                 <Button
@@ -97,36 +172,28 @@ export default function CashierLayout({ children }) {
                   color="success"
                   component={Link}
                   to="/chasier/session/active"
-                  sx={{ ml: 2 }}
                 >
-                  Lihat & Tutup Session
+                  Kelola
                 </Button>
-              </Alert>
+              </Box>
             ) : (
-              <Alert
-                severity="warning"
-                icon={<WarningIcon />}
-                action={
-                  <Button
-                    color="inherit"
-                    size="small"
-                    component={Link}
-                    to="/cashier-sessions/open"
-                  >
-                    Buka Session
-                  </Button>
-                }
-                sx={{ mb: 2 }}
-              >
-                <Box>
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    ⚠ Session Kasir Belum Dibuka
-                  </Typography>
-                  <Typography variant="caption">
-                    Anda tidak dapat melakukan transaksi sampai membuka session kasir terlebih dahulu.
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <WarningIcon color="warning" fontSize="small" />
+                  <Typography variant="body2" color="warning.main" fontWeight="medium">
+                    Session Kasir Belum Dibuka
                   </Typography>
                 </Box>
-              </Alert>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="warning"
+                  component={Link}
+                  to="/chasier/session/open"
+                >
+                  Buka Session
+                </Button>
+              </Box>
             )}
           </>
         )}

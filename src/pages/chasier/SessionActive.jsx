@@ -19,8 +19,9 @@ import {
   DialogActions,
   Grid,
   Chip,
+  IconButton,
 } from "@mui/material";
-import { Close as CloseIcon, History as HistoryIcon } from "@mui/icons-material";
+import { Close as CloseIcon, History as HistoryIcon, Refresh as RefreshIcon } from "@mui/icons-material";
 
 export default function CashierSessionActive() {
   const navigate = useNavigate();
@@ -33,10 +34,23 @@ export default function CashierSessionActive() {
     notes: "",
   });
   const [closing, setClosing] = useState(false);
+  const [totalTransaksi, setTotalTransaksi] = useState(0);
+  const [loadingTransaksi, setLoadingTransaksi] = useState(false);
 
   useEffect(() => {
     fetchActiveSession();
   }, []);
+
+  // Auto refresh total transaksi setiap 30 detik ketika session tersedia
+  useEffect(() => {
+    if (!session) return;
+    
+    const interval = setInterval(() => {
+      fetchTotalTransaksi(session.id);
+    }, 30000); // 30 detik
+    
+    return () => clearInterval(interval);
+  }, [session]);
 
   const fetchActiveSession = async () => {
     try {
@@ -44,6 +58,9 @@ export default function CashierSessionActive() {
       const res = await api.get("/cashier-sessions/current");
       if (!res.data) {
         setError("Tidak ada session aktif. Buka session baru terlebih dahulu.");
+      } else {
+        // Fetch total transaksi setelah session didapat
+        await fetchTotalTransaksi(res.data.id);
       }
     } catch (err) {
       console.error("Error:", err.response);
@@ -51,6 +68,19 @@ export default function CashierSessionActive() {
       setError(errorMsg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTotalTransaksi = async (sessionId) => {
+    try {
+      setLoadingTransaksi(true);
+      const res = await api.get(`/cashier-sessions/${sessionId}/transactions/total`);
+      setTotalTransaksi(res.data.total || 0);
+    } catch (err) {
+      console.error("Error fetching total transaksi:", err);
+      setTotalTransaksi(0);
+    } finally {
+      setLoadingTransaksi(false);
     }
   };
 
@@ -79,8 +109,10 @@ export default function CashierSessionActive() {
 
     try {
       setClosing(true);
+      const expectedBalance = parseFloat(session.opening_balance || 0) + parseFloat(totalTransaksi || 0);
       await api.post(`/cashier-sessions/${session.id}/close`, {
         closing_balance: parseFloat(closingData.closing_balance),
+        expected_balance: expectedBalance,
         notes: closingData.notes,
       });
       
@@ -186,6 +218,47 @@ export default function CashierSessionActive() {
                 </Typography>
                 <Typography variant="h6">
                   Rp {session.opening_balance?.toLocaleString('id-ID') || 0}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Card>
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box>
+                    <Typography color="textSecondary" gutterBottom>
+                      Total Transaksi
+                    </Typography>
+                    <Typography variant="h6" color="primary">
+                      {loadingTransaksi ? '...' : `Rp ${totalTransaksi.toLocaleString('id-ID')}`}
+                    </Typography>
+                  </Box>
+                  <IconButton 
+                    onClick={() => session && fetchTotalTransaksi(session.id)}
+                    disabled={loadingTransaksi}
+                    size="small"
+                    color="primary"
+                  >
+                    <RefreshIcon />
+                  </IconButton>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Card sx={{ bgcolor: 'primary.light', color: 'primary.contrastText' }}>
+              <CardContent>
+                <Typography color="inherit" gutterBottom fontWeight="bold">
+                  Expected Balance
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  Rp {(parseFloat(session.opening_balance || 0) + parseFloat(totalTransaksi || 0)).toLocaleString('id-ID')}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Saldo pembukaan + total transaksi • Auto-refresh setiap 30 detik
                 </Typography>
               </CardContent>
             </Card>

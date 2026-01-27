@@ -21,13 +21,8 @@ import {
   Box,
   Alert,
   Grid,
-  AppBar,
-  Toolbar,
-  Menu,
-  IconButton,
-  Avatar,
 } from "@mui/material";
-import { Save as SaveIcon, Add as AddIcon, Logout as LogoutIcon } from "@mui/icons-material";
+import { Save as SaveIcon, Add as AddIcon } from "@mui/icons-material";
 
 const Receipt = React.forwardRef(({ validItems, total, discount, totalBayar, returnAmount, customerName, casher, paymentMethod, moneyReceived }, ref) => (
   <div ref={ref} style={{ padding: '20px', fontFamily: 'monospace', maxWidth: '300px', margin: '0 auto' }}>
@@ -82,59 +77,30 @@ export default function ProductOutCreate() {
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [errors, setErrors] = useState([""]);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [userInfo, setUserInfo] = useState({ name: "User", email: "" });
 
   const barcodeRefs = useRef([]);
   const receiptRef = useRef();
 
   useEffect(() => {
-    // Ambil user info dari localStorage
+    // Ambil user info dari localStorage untuk set kasir
     const userFromStorage = localStorage.getItem("user");
-    console.log("Raw user from localStorage:", userFromStorage);
     if (userFromStorage) {
       try {
         const userData = JSON.parse(userFromStorage);
-        console.log("Parsed user data:", userData);
-        // Handle berbagai struktur data
         if (userData.name) {
-          setUserInfo(userData);
-          setCasher(userData.name); // Set kasir dari user data
+          setCasher(userData.name);
         } else if (userData.user && userData.user.name) {
-          setUserInfo(userData.user);
           setCasher(userData.user.name);
         }
       } catch (error) {
         console.error("Error parsing user data", error);
       }
-    } else {
-      console.warn("No user data found in localStorage");
     }
   }, []);
 
   const handlePrint = useReactToPrint({
     contentRef: receiptRef,
   });
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await api.post("/logout");
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-      localStorage.removeItem("user");
-      navigate("/login");
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  };
 
   useEffect(() => {
     api.get("/products").then((res) => {
@@ -265,63 +231,6 @@ export default function ProductOutCreate() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-      {/* Top Bar */}
-      <AppBar position="static" sx={{ bgcolor: '#1976d2' }}>
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant="h6" component="div">
-            POS - Cashier
-          </Typography>
-          
-          {/* User Info & Logout Dropdown */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="body2">
-              {userInfo.name}
-            </Typography>
-            <IconButton
-              onClick={handleMenuOpen}
-              sx={{ 
-                p: 0,
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
-              }}
-            >
-              <Avatar 
-                sx={{ 
-                  width: 36, 
-                  height: 36, 
-                  bgcolor: '#ff9800',
-                  cursor: 'pointer'
-                }}
-              >
-                {userInfo.name?.charAt(0).toUpperCase()}
-              </Avatar>
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-            >
-              <MenuItem disabled>
-                <Typography variant="body2" color="textSecondary">
-                  {userInfo.email}
-                </Typography>
-              </MenuItem>
-              <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-                <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
-                Logout
-              </MenuItem>
-            </Menu>
-          </Box>
-        </Toolbar>
-      </AppBar>
-
       {/* Main Content */}
       <Box sx={{ flex: 1, p: 3, overflow: 'auto' }}>
         <Box sx={{ width: '100%' }}>
