@@ -42,7 +42,7 @@ export default function UserIndex() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/users");
+      const res = await api.get("/users/get");
       setUsers(res.data);
       setError("");
     } catch (err) {

@@ -69,6 +69,7 @@ export default function MainLayout({ children }) {
     { text: 'Produk', icon: <InventoryIcon />, path: '/products' },
     { text: 'Barang Masuk', icon: <MoveToInboxIcon />, path: '/products-in' },
     { text: 'Barang Keluar', icon: <OutboxIcon />, path: '/products-out' },
+    { text: 'Laporan', icon: <CreditCardIcon />, path: '/reports' },
     { text: 'Session Kasir', icon: <CreditCardIcon />, path: '/cashier-sessions' },
     { text: 'Manajemen User', icon: <PeopleIcon />, path: '/users' },
   ];

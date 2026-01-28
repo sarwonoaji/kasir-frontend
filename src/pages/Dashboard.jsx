@@ -23,67 +23,26 @@ import {
   TrendingUp as TrendingUpIcon,
   AttachMoney as MoneyIcon,
   Timeline as TimelineIcon,
-  Star as StarIcon,
   Dashboard as DashboardIcon,
 } from "@mui/icons-material";
 export default function Dashboard() {
-  const [stats, setStats] = useState({
-    totalProducts: 0,
-    productsInToday: 0,
-    productsOutToday: 0,
-    revenueToday: 0,
+  const [dashboardData, setDashboardData] = useState({
+    total_sales_today: 0,
+    total_transactions_today: 0,
+    total_sales_month: 0,
+    low_stock_products_count: 0,
+    recent_transactions: [],
   });
   const [loading, setLoading] = useState(true);
-  const [recentActivities, setRecentActivities] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch stats
-        const [productsRes, productsInRes, productsOutRes] = await Promise.all([
-          api.get("/products"),
-          api.get("/product-ins"),
-          api.get("/product-outs"),
-        ]);
-
-        const totalProducts = productsRes.data.length;
-
-        // Calculate today's data (simplified - in real app you'd filter by date)
-        const today = new Date().toISOString().split('T')[0];
-        const productsInToday = productsInRes.data.filter(p => p.date === today).length;
-        const productsOutToday = productsOutRes.data.filter(p => p.date === today).length;
-
-        // Calculate revenue from today's sales
-        const revenueToday = productsOutRes.data
-          .filter(p => p.date === today)
-          .reduce((sum, p) => sum + p.details.reduce((s, d) => s + Number(d.total_price), 0), 0);
-
-        setStats({
-          totalProducts,
-          productsInToday,
-          productsOutToday,
-          revenueToday,
-        });
-
-        // Mock recent activities (in real app, this would come from API)
-        setRecentActivities([
-          { text: 'Produk "Beras 5kg" ditambahkan', time: '2 jam lalu', type: 'add' },
-          { text: 'Penjualan produk "Minyak Goreng" sebanyak 5 unit', time: '3 jam lalu', type: 'sale' },
-          { text: 'Stok "Gula 1kg" diperbarui', time: '5 jam lalu', type: 'update' },
-          { text: 'Produk "Teh Celup" masuk 20 dus', time: '6 jam lalu', type: 'in' }
-        ]);
-
-        // Mock top products (in real app, this would come from API)
-        setTopProducts([
-          { name: 'Beras 5kg', sales: 50 },
-          { name: 'Minyak Goreng 2L', sales: 30 },
-          { name: 'Gula 1kg', sales: 25 },
-          { name: 'Teh Celup', sales: 20 }
-        ]);
-
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        setLoading(true);
+        const res = await api.get("/dashboard");
+        setDashboardData(res.data);
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
       } finally {
         setLoading(false);
       }
@@ -94,32 +53,32 @@ export default function Dashboard() {
 
   const statCards = [
     {
-      title: 'Total Produk',
-      value: stats.totalProducts,
-      icon: <InventoryIcon />,
-      color: 'primary',
-      bgColor: 'primary.light',
-    },
-    {
-      title: 'Produk Masuk Hari Ini',
-      value: stats.productsInToday,
-      icon: <ShoppingCartIcon />,
+      title: 'Penjualan Hari Ini',
+      value: `Rp ${dashboardData.total_sales_today?.toLocaleString() || 0}`,
+      icon: <MoneyIcon />,
       color: 'success',
       bgColor: 'success.light',
     },
     {
-      title: 'Produk Keluar Hari Ini',
-      value: stats.productsOutToday,
-      icon: <TrendingUpIcon />,
-      color: 'warning',
-      bgColor: 'warning.light',
+      title: 'Transaksi Hari Ini',
+      value: dashboardData.total_transactions_today || 0,
+      icon: <ShoppingCartIcon />,
+      color: 'primary',
+      bgColor: 'primary.light',
     },
     {
-      title: 'Pendapatan Hari Ini',
-      value: `Rp ${stats.revenueToday.toLocaleString()}`,
-      icon: <MoneyIcon />,
+      title: 'Penjualan Bulan Ini',
+      value: `Rp ${dashboardData.total_sales_month?.toLocaleString() || 0}`,
+      icon: <TrendingUpIcon />,
       color: 'info',
       bgColor: 'info.light',
+    },
+    {
+      title: 'Produk Stok Rendah',
+      value: dashboardData.low_stock_products_count || 0,
+      icon: <InventoryIcon />,
+      color: 'warning',
+      bgColor: 'warning.light',
     },
   ];
 
@@ -166,78 +125,41 @@ export default function Dashboard() {
         ))}
       </Grid>
 
-      {/* Activities and Top Products */}
+      {/* Recent Transactions */}
       <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Paper elevation={3} sx={{ borderRadius: 2, p: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
               <TimelineIcon color="primary" />
               <Typography variant="h6" fontWeight="bold">
-                Aktivitas Terbaru
+                Transaksi Terbaru
               </Typography>
             </Box>
             <List>
-              {recentActivities.map((activity, index) => (
-                <Box key={index}>
-                  <ListItem sx={{ px: 0 }}>
-                    <ListItemIcon>
-                      <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.light' }}>
-                        {activity.type === 'add' && <InventoryIcon sx={{ fontSize: 16 }} />}
-                        {activity.type === 'sale' && <ShoppingCartIcon sx={{ fontSize: 16 }} />}
-                        {activity.type === 'update' && <TrendingUpIcon sx={{ fontSize: 16 }} />}
-                        {activity.type === 'in' && <MoneyIcon sx={{ fontSize: 16 }} />}
-                      </Avatar>
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={activity.text}
-                      secondary={activity.time}
-                      primaryTypographyProps={{ variant: 'body2' }}
-                      secondaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                    />
-                  </ListItem>
-                  {index < recentActivities.length - 1 && <Divider />}
-                </Box>
-              ))}
-            </List>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={{ borderRadius: 2, p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-              <StarIcon color="primary" />
-              <Typography variant="h6" fontWeight="bold">
-                Produk Terlaris
-              </Typography>
-            </Box>
-            <List>
-              {topProducts.map((product, index) => (
-                <Box key={index}>
-                  <ListItem sx={{ px: 0 }}>
-                    <ListItemIcon>
-                      <Chip
-                        label={index + 1}
-                        size="small"
-                        color={index === 0 ? 'primary' : index === 1 ? 'secondary' : 'default'}
-                        sx={{ minWidth: 32, height: 24 }}
+              {dashboardData.recent_transactions?.length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                  Tidak ada transaksi terbaru
+                </Typography>
+              ) : (
+                dashboardData.recent_transactions?.map((transaction, index) => (
+                  <Box key={transaction.id}>
+                    <ListItem sx={{ px: 0 }}>
+                      <ListItemIcon>
+                        <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.light' }}>
+                          <ShoppingCartIcon sx={{ fontSize: 16 }} />
+                        </Avatar>
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`Invoice: ${transaction.invoice_number || `INV-${transaction.id}`}`}
+                        secondary={`${transaction.user?.name || 'N/A'} - Rp ${transaction.total?.toLocaleString() || 0} - ${new Date(transaction.date).toLocaleDateString()}`}
+                        primaryTypographyProps={{ variant: 'body2' }}
+                        secondaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
                       />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={product.name}
-                      secondary={`${product.sales} penjualan`}
-                      primaryTypographyProps={{ variant: 'body2', fontWeight: 'medium' }}
-                      secondaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                    />
-                    <Chip
-                      label={`${Math.floor((product.sales / topProducts[0].sales) * 100)}%`}
-                      size="small"
-                      variant="outlined"
-                      color="primary"
-                    />
-                  </ListItem>
-                  {index < topProducts.length - 1 && <Divider />}
-                </Box>
-              ))}
+                    </ListItem>
+                    {index < dashboardData.recent_transactions.length - 1 && <Divider />}
+                  </Box>
+                ))
+              )}
             </List>
           </Paper>
         </Grid>

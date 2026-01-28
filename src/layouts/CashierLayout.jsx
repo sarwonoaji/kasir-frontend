@@ -94,6 +94,28 @@ export default function CashierLayout({ children }) {
           >
             Lihat Stock
           </Button>
+
+          <Button
+            color="inherit"
+            size="small"
+            startIcon={<InventoryIcon />}
+            component={Link}
+            to="/cashier/history"
+            sx={{ mr: 2 }}
+          >
+            Riwayat Transaksi
+          </Button>
+
+          <Button
+            color="inherit"
+            size="small"
+            startIcon={<InventoryIcon />}
+            component={Link}
+            to="/cashier/create"
+            sx={{ mr: 2 }}
+          >
+            Buat Transaksi
+          </Button>
           
           {/* User Info & Menu */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2 }}>

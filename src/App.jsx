@@ -33,6 +33,9 @@ import CashierCreate from "./pages/chasier/Create";
 import CashierSessionOpenForm from "./pages/chasier/SessionOpen";
 import CashierSessionActiveForm from "./pages/chasier/SessionActive";
 import CashierStock from "./pages/chasier/Stock";
+import CashierHistoryIndex from "./pages/chasier/HistoryIndex";
+import CashierHistoryDetail from "./pages/chasier/HistoryDetail";
+import Reports from "./pages/Reports";
 
 import MainLayout from "./layouts/MainLayout";
 import CashierLayout from "./layouts/CashierLayout";
@@ -217,6 +220,18 @@ export default function App() {
             }
           />
 
+          {/* REPORTS */}
+          <Route
+            path="/reports"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
+
           {/* USERS */}
           <Route
             path="/users"
@@ -304,6 +319,15 @@ export default function App() {
             }
           />
 
+          <Route
+            path="/cashier/historyindex"
+            element={
+              <CashierLayout>
+                <CashierHistoryIndex/>
+              </CashierLayout>
+            }
+          />
+
           {/* CASHIER SESSION MANAGEMENT - Khusus Cashier */}
           <Route
             path="/chasier/session/open"
@@ -320,6 +344,28 @@ export default function App() {
               <CashierLayout>
                 <ProtectedRoute>
                   <CashierSessionActiveForm />
+                </ProtectedRoute>
+              </CashierLayout>
+            }
+          />
+
+          <Route
+            path="/cashier/history"
+            element={
+              <CashierLayout>
+                <ProtectedRoute>
+                  <CashierHistoryIndex />
+                </ProtectedRoute>
+              </CashierLayout>
+            }
+          />
+
+          <Route
+            path="/cashier/HistoryDetail/:id"
+            element={
+              <CashierLayout>
+                <ProtectedRoute>
+                  <CashierHistoryDetail />
                 </ProtectedRoute>
               </CashierLayout>
             }
