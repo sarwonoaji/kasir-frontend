@@ -11,6 +11,8 @@ import UserIndex from "./pages/users/Index";
 import UserCreate from "./pages/users/Create";
 import UserEdit from "./pages/users/Edit";
 
+import BackupIndex from "./pages/backups/Index";
+
 import ProductIndex from "./pages/products/Index";
 import ProductCreate from "./pages/products/Create";
 import ProductEdit from "./pages/products/Edit";
@@ -261,6 +263,18 @@ export default function App() {
               <MainLayout>
                 <ProtectedRoute>
                   <UserEdit />
+                </ProtectedRoute>
+              </MainLayout>
+            }
+          />
+
+          {/* BACKUPS */}
+          <Route
+            path="/backups"
+            element={
+              <MainLayout>
+                <ProtectedRoute>
+                  <BackupIndex />
                 </ProtectedRoute>
               </MainLayout>
             }

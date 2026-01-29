@@ -32,6 +32,7 @@ import {
   CreditCard as CreditCardIcon,
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
+  Backup as BackupIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
 
@@ -71,6 +72,7 @@ export default function MainLayout({ children }) {
     { text: 'Laporan', icon: <CreditCardIcon />, path: '/reports' },
     { text: 'Session Kasir', icon: <CreditCardIcon />, path: '/cashier-sessions' },
     { text: 'Manajemen User', icon: <PeopleIcon />, path: '/users' },
+    { text: 'Backup Database', icon: <BackupIcon />, path: '/backups' },
   ];
 
   const drawer = (
