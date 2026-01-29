@@ -276,16 +276,14 @@ export default function App() {
             }
           />
 
-          {/* <Route
+          <Route
             path="/cashier-sessions/open"
             element={
               <MainLayout>
-                <ProtectedRoute>
                   <CashierSessionOpen />
-                </ProtectedRoute>
               </MainLayout>
             }
-          /> */}
+          />
 
           <Route
             path="/cashier-sessions/active"

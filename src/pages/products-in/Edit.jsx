@@ -27,6 +27,7 @@ import {
   CalendarToday as CalendarIcon,
   Notes as NotesIcon,
   Edit as EditIcon,
+  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 
 export default function ProductInEdit() {
@@ -257,7 +258,17 @@ export default function ProductInEdit() {
 
           <Divider sx={{ my: 3 }} />
 
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<ArrowBackIcon />}
+              size="large"
+              sx={{ px: 4, py: 1.5 }}
+              onClick={() => navigate('/products-in')}
+            >
+              Batal
+            </Button>
             <Button
               type="submit"
               variant="contained"

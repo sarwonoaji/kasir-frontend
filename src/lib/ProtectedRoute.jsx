@@ -33,7 +33,7 @@ export default function ProtectedRoute({ children }) {
   // Cek apakah session sudah open
   if (!isSessionOpen) {
     // Redirect ke halaman open session dengan pesan
-    return <Navigate to="/cashier-sessions/open" />;
+    return <Navigate to="/chasier/session/open" />;
   }
 
   return children;

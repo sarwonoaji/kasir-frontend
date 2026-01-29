@@ -123,13 +123,6 @@ export default function CashierSessionOpen() {
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/cashier-sessions")}
-          sx={{ mr: 2 }}
-        >
-          Kembali
-        </Button>
         <Typography variant="h4" component="h1">
           Buka Session Kasir
         </Typography>

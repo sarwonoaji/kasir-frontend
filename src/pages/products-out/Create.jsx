@@ -21,7 +21,7 @@ import {
   Alert,
   Grid,
 } from "@mui/material";
-import { Save as SaveIcon, Add as AddIcon } from "@mui/icons-material";
+import { Save as SaveIcon, Add as AddIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 
 const Receipt = React.forwardRef(({ validItems, total, discount, totalBayar, returnAmount, customerName, casher, paymentMethod, moneyReceived }, ref) => (
   <div ref={ref} style={{ padding: '20px', fontFamily: 'monospace', maxWidth: '300px', margin: '0 auto' }}>
@@ -369,7 +369,17 @@ export default function ProductOutCreate() {
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            size="large"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => window.history.back()}
+            sx={{ px: 4, py: 1.5 }}
+          >
+            Batal
+          </Button>
           <Button
             variant="contained"
             color="primary"

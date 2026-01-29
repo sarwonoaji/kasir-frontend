@@ -10,6 +10,7 @@ import {
   Box,
   Grid,
   IconButton,
+  Alert,
 } from "@mui/material";
 import {
   Save as SaveIcon,
@@ -30,25 +31,47 @@ export default function ProductCreate() {
     description: "",
   });
 
-  const submit = async () => {
-    await api.post("/products", {
-      barcode: form.barcode,
-      name: form.name,
-      price: Number(form.price),
-      stock: Number(form.stock),
-      unit: form.unit,
-      description: form.description,
-    });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [generalError, setGeneralError] = useState("");
 
-    navigate("/products");
+  const submit = async () => {
+    setLoading(true);
+    setErrors({});
+    setGeneralError("");
+
+    try {
+      await api.post("/products", {
+        barcode: form.barcode,
+        name: form.name,
+        price: Number(form.price),
+        stock: Number(form.stock),
+        unit: form.unit,
+        description: form.description,
+      });
+
+      navigate("/products");
+    } catch (error) {
+      console.error("Error creating product:", error);
+
+      if (error.response?.data?.errors) {
+        // Handle validation errors
+        setErrors(error.response.data.errors);
+      } else if (error.response?.data?.message) {
+        // Handle general error message
+        setGeneralError(error.response.data.message);
+      } else {
+        // Handle network or other errors
+        setGeneralError("Terjadi kesalahan saat menyimpan produk");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-        <IconButton component={Link} to="/products" color="primary">
-          <ArrowBackIcon />
-        </IconButton>
         <InventoryIcon color="primary" sx={{ fontSize: 40 }} />
         <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
           Tambah Produk
@@ -56,6 +79,12 @@ export default function ProductCreate() {
       </Box>
 
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2, maxWidth: 600 }}>
+        {generalError && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {generalError}
+          </Alert>
+        )}
+
         <Box component="form" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <Grid container spacing={3}>
             <Grid size={{ xs: 12 }}>
@@ -66,6 +95,9 @@ export default function ProductCreate() {
                 value={form.barcode}
                 onChange={e => setForm({ ...form, barcode: e.target.value })}
                 placeholder="Masukkan barcode produk"
+                required
+                error={!!errors.barcode}
+                helperText={errors.barcode ? errors.barcode[0] : ""}
               />
             </Grid>
 
@@ -78,6 +110,8 @@ export default function ProductCreate() {
                 onChange={e => setForm({ ...form, name: e.target.value })}
                 placeholder="Masukkan nama produk"
                 required
+                error={!!errors.name}
+                helperText={errors.name ? errors.name[0] : ""}
               />
             </Grid>
 
@@ -94,6 +128,8 @@ export default function ProductCreate() {
                   startAdornment: <Typography sx={{ mr: 1 }}>Rp</Typography>,
                 }}
                 required
+                error={!!errors.price}
+                helperText={errors.price ? errors.price[0] : ""}
               />
             </Grid>
 
@@ -107,6 +143,8 @@ export default function ProductCreate() {
                 onChange={e => setForm({ ...form, stock: e.target.value })}
                 placeholder="0"
                 required
+                error={!!errors.stock}
+                helperText={errors.stock ? errors.stock[0] : ""}
               />
             </Grid>
 
@@ -118,6 +156,9 @@ export default function ProductCreate() {
                 value={form.unit}
                 onChange={e => setForm({ ...form, unit: e.target.value })}
                 placeholder="pcs, kg, liter, dll"
+                required
+                error={!!errors.unit}
+                helperText={errors.unit ? errors.unit[0] : ""}
               />
             </Grid>
 
@@ -131,11 +172,23 @@ export default function ProductCreate() {
                 placeholder="Deskripsi produk (opsional)"
                 multiline
                 rows={2}
+                error={!!errors.description}
+                helperText={errors.description ? errors.description[0] : ""}
               />
             </Grid>
           </Grid>
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<ArrowBackIcon />}
+              size="large"
+              sx={{ px: 4, py: 1.5 }}
+              onClick={() => navigate('/products')}
+            >
+              Batal
+            </Button>
             <Button
               type="submit"
               variant="contained"
@@ -143,8 +196,9 @@ export default function ProductCreate() {
               startIcon={<SaveIcon />}
               size="large"
               sx={{ px: 6, py: 1.5 }}
+              disabled={loading}
             >
-              Simpan Produk
+              {loading ? "Menyimpan..." : "Simpan Produk"}
             </Button>
           </Box>
         </Box>

@@ -17,6 +17,7 @@ import {
   CardContent,
   IconButton,
   Divider,
+  Alert,
 } from "@mui/material";
 import {
   Save as SaveIcon,
@@ -25,6 +26,7 @@ import {
   Inventory as InventoryIcon,
   CalendarToday as CalendarIcon,
   Notes as NotesIcon,
+  ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 
 export default function ProductInCreate() {
@@ -32,6 +34,10 @@ export default function ProductInCreate() {
   const [remark, setRemark] = useState("");
   const [products, setProducts] = useState([]);
   const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get("/products").then((res) => {
@@ -70,18 +76,33 @@ export default function ProductInCreate() {
 
   const submit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErrors({});
+    setGeneralError("");
 
-    await api.post("/product-ins", {
-      date,
-      remark,
-      items,
-    });
+    try {
+      await api.post("/product-ins", {
+        date,
+        remark,
+        items,
+      });
 
-    alert("Product in berhasil disimpan");
-    setDate("");
-    setRemark("");
-    setItems([]);
-    navigate("/products-in");
+      alert("Product in berhasil disimpan");
+      setDate("");
+      setRemark("");
+      setItems([]);
+      navigate("/products-in");
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.errors) {
+        setErrors(error.response.data.errors);
+      } else if (error.response && error.response.data && error.response.data.message) {
+        setGeneralError(error.response.data.message);
+      } else {
+        setGeneralError("Terjadi kesalahan saat menyimpan data");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -94,6 +115,11 @@ export default function ProductInCreate() {
       </Box>
 
       <Paper elevation={3} sx={{ p: 4, borderRadius: 2, maxWidth: 800 }}>
+        {generalError && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {generalError}
+          </Alert>
+        )}
         <Box component="form" onSubmit={submit}>
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -110,6 +136,8 @@ export default function ProductInCreate() {
                 required
                 fullWidth
                 variant="outlined"
+                error={!!errors.date}
+                helperText={errors.date ? errors.date[0] : ""}
               />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -126,6 +154,8 @@ export default function ProductInCreate() {
                 fullWidth
                 variant="outlined"
                 placeholder="Masukkan catatan (opsional)"
+                error={!!errors.remark}
+                helperText={errors.remark ? errors.remark[0] : ""}
               />
             </Grid>
           </Grid>
@@ -224,7 +254,17 @@ export default function ProductInCreate() {
 
           <Divider sx={{ my: 3 }} />
 
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<ArrowBackIcon />}
+              size="large"
+              sx={{ px: 4, py: 1.5 }}
+              onClick={() => navigate('/products-in')}
+            >
+              Batal
+            </Button>
             <Button
               type="submit"
               variant="contained"
@@ -232,8 +272,9 @@ export default function ProductInCreate() {
               startIcon={<SaveIcon />}
               size="large"
               sx={{ px: 6, py: 1.5 }}
+              disabled={loading}
             >
-              Simpan
+              {loading ? "Menyimpan..." : "Simpan"}
             </Button>
           </Box>
         </Box>

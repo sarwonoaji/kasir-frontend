@@ -66,9 +66,6 @@ export default function ProductEdit() {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-        <IconButton component={Link} to="/products" color="primary">
-          <ArrowBackIcon />
-        </IconButton>
         <EditIcon color="primary" sx={{ fontSize: 40 }} />
         <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
           Edit Produk
@@ -155,7 +152,17 @@ export default function ProductEdit() {
             </Grid>
           </Grid>
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              startIcon={<ArrowBackIcon />}
+              size="large"
+              sx={{ px: 4, py: 1.5 }}
+              onClick={() => navigate('/products')}
+            >
+              Batal
+            </Button>
             <Button
               type="submit"
               variant="contained"
