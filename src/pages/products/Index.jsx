@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import api from "../../lib/axios";
 import {
@@ -19,6 +19,7 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
+  TablePagination,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -34,33 +35,109 @@ export default function ProductIndex() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchLoading, setSearchLoading] = useState(false);
 
-  const loadProducts = async () => {
+  // Debounce ref for search
+  const searchTimeoutRef = useRef(null);
+
+  const loadProducts = async (pageNum = 0, limit = 10, search = "", isInitialLoad = false) => {
     try {
-      setLoading(true);
-      const res = await api.get("/products");
-      setProducts(res.data);
+      if (isInitialLoad) {
+        setLoading(true);
+      } else {
+        setSearchLoading(true);
+      }
+      
+      const params = {
+        page: pageNum + 1, // API menggunakan 1-based indexing
+        per_page: limit,
+      };
+
+      if (search) {
+        params.search = search;
+      }
+
+      const res = await api.get("/products", { params });
+
+      // Handle response dengan pagination
+      if (res.data.data && res.data.total !== undefined) {
+        setProducts(res.data.data);
+        setTotalItems(res.data.total);
+      } else if (Array.isArray(res.data)) {
+        // Fallback jika API mengembalikan array langsung
+        setProducts(res.data);
+        setTotalItems(res.data.length);
+      } else {
+        setProducts([]);
+        setTotalItems(0);
+      }
     } catch (error) {
       console.error("Error loading products:", error);
+      setProducts([]);
+      setTotalItems(0);
     } finally {
       setLoading(false);
+      setSearchLoading(false);
     }
   };
 
   const remove = async (id) => {
     if (!confirm("Hapus produk ini?")) return;
-    await api.delete(`/products/${id}`);
-    loadProducts();
+
+    try {
+      await api.delete(`/products/${id}`);
+      // Reload current page after deletion
+      loadProducts(page, rowsPerPage, searchTerm);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert("Gagal menghapus produk");
+    }
   };
 
-  // Filter products based on search term
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.barcode.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+    loadProducts(newPage, rowsPerPage, searchTerm);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+    loadProducts(0, newRowsPerPage, searchTerm);
+  };
+
+  // Debounced search function
+  const debouncedSearch = useCallback((searchTerm) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      setPage(0); // Reset to first page when searching
+      loadProducts(0, rowsPerPage, searchTerm);
+    }, 300); // Wait 300ms after user stops typing
+  }, [rowsPerPage]);
+
+  const handleSearchChange = (e) => {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+    debouncedSearch(newSearchTerm);
+  };
 
   useEffect(() => {
-    loadProducts();
+    loadProducts(0, rowsPerPage, searchTerm, true);
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, []);
 
   return (
@@ -90,7 +167,7 @@ export default function ProductIndex() {
           label="Cari Produk"
           variant="outlined"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
           placeholder="Cari berdasarkan nama produk atau barcode..."
           sx={{ maxWidth: 400 }}
           InputProps={{
@@ -99,6 +176,11 @@ export default function ProductIndex() {
                 <SearchIcon />
               </InputAdornment>
             ),
+            endAdornment: searchLoading ? (
+              <InputAdornment position="end">
+                <CircularProgress size={20} />
+              </InputAdornment>
+            ) : null,
           }}
         />
       </Box>
@@ -128,7 +210,7 @@ export default function ProductIndex() {
                     </Box>
                   </TableCell>
                 </TableRow>
-              ) : filteredProducts.length === 0 ? (
+              ) : products.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} sx={{ textAlign: 'center', py: 6 }}>
                     <Typography variant="h6" color="text.secondary">
@@ -137,7 +219,7 @@ export default function ProductIndex() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredProducts.map((p) => (
+                products.map((p) => (
                   <TableRow key={p.id} hover sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -189,6 +271,19 @@ export default function ProductIndex() {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[5, 10, 25, 50]}
+          component="div"
+          count={totalItems}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Data per halaman:"
+          labelDisplayedRows={({ from, to, count }) =>
+            `${from}-${to} dari ${count !== -1 ? count : `lebih dari ${to}`}`
+          }
+        />
       </Paper>
     </Container>
   );

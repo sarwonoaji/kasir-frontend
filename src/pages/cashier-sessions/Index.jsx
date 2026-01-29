@@ -30,6 +30,7 @@ import {
   Visibility as VisibilityIcon,
   Close as CloseIcon,
   Search as SearchIcon,
+  Refresh as RefreshIcon,
 } from "@mui/icons-material";
 
 export default function CashierSessionIndex() {
@@ -49,6 +50,8 @@ export default function CashierSessionIndex() {
     notes: "",
   });
   const [closing, setClosing] = useState(false);
+  const [totalTransaksi, setTotalTransaksi] = useState(0);
+  const [loadingTransaksi, setLoadingTransaksi] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -126,7 +129,23 @@ export default function CashierSessionIndex() {
   const handleCloseClick = (session) => {
     setSelectedSession(session);
     setClosingData({ closing_balance: "", notes: "" });
+    setTotalTransaksi(0); // Reset total transaksi
     setOpenCloseDialog(true);
+    // Fetch total transaksi untuk session ini
+    fetchTotalTransaksi(session.id);
+  };
+
+  const fetchTotalTransaksi = async (sessionId) => {
+    try {
+      setLoadingTransaksi(true);
+      const res = await api.get(`/cashier-sessions/${sessionId}/transactions/total`);
+      setTotalTransaksi(res.data.total || 0);
+    } catch (err) {
+      console.error("Error fetching total transaksi:", err);
+      setTotalTransaksi(0);
+    } finally {
+      setLoadingTransaksi(false);
+    }
   };
 
   const handleCloseChange = (e) => {
@@ -150,8 +169,10 @@ export default function CashierSessionIndex() {
 
     try {
       setClosing(true);
+      const expectedBalance = parseFloat(selectedSession.opening_balance || 0) + parseFloat(totalTransaksi || 0);
       await api.post(`/cashier-sessions/${selectedSession.id}/close`, {
         closing_balance: parseFloat(closingData.closing_balance),
+        expected_balance: expectedBalance,
         notes: closingData.notes,
       });
       
@@ -418,6 +439,31 @@ export default function CashierSessionIndex() {
       <Dialog open={openCloseDialog} onClose={() => setOpenCloseDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Tutup Session Kasir</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
+          {selectedSession && (
+            <Box sx={{ mb: 3, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+              <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                Ringkasan Saldo
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="body2">Saldo Pembukaan:</Typography>
+                <Typography variant="body2" fontWeight="bold">
+                  Rp {parseFloat(selectedSession.opening_balance || 0).toLocaleString('id-ID')}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="body2">Total Transaksi:</Typography>
+                <Typography variant="body2" fontWeight="bold">
+                  Rp {parseFloat(totalTransaksi || 0).toLocaleString('id-ID')}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', borderTop: 1, borderColor: 'divider', pt: 1 }}>
+                <Typography variant="body2" fontWeight="bold">Saldo Expected:</Typography>
+                <Typography variant="body2" fontWeight="bold" color="primary">
+                  Rp {(parseFloat(selectedSession.opening_balance || 0) + parseFloat(totalTransaksi || 0)).toLocaleString('id-ID')}
+                </Typography>
+              </Box>
+            </Box>
+          )}
           <TextField
             fullWidth
             label="Saldo Penutupan"

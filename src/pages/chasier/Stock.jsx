@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import api from "../../lib/axios";
 import {
   Container,
@@ -15,6 +15,8 @@ import {
   Alert,
   TextField,
   InputAdornment,
+  TablePagination,
+  CircularProgress,
 } from "@mui/material";
 import {
   Inventory as InventoryIcon,
@@ -27,36 +29,84 @@ export default function CashierStock() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [searchLoading, setSearchLoading] = useState(false);
 
-  const loadProducts = async () => {
+  // Debounce ref for search
+  const searchTimeoutRef = useRef(null);
+
+  const loadProducts = async (pageNum = 0, limit = 10, search = "", isInitialLoad = false) => {
     try {
-      setLoading(true);
-      const res = await api.get("/products");
-      setProducts(res.data);
+      if (isInitialLoad) {
+        setLoading(true);
+      } else {
+        setSearchLoading(true);
+      }
+      
+      const params = {
+        page: pageNum + 1, // API menggunakan 1-based indexing
+        per_page: limit,
+      };
+
+      if (search) {
+        params.search = search;
+      }
+
+      const res = await api.get("/products", { params });
+      setProducts(res.data.data || res.data);
+      setTotalItems(res.data.total || res.data.length);
     } catch (err) {
       console.error("Error loading products:", err);
       setError("Gagal memuat data produk");
     } finally {
       setLoading(false);
+      setSearchLoading(false);
     }
   };
 
-  // Filter products berdasarkan search query
-  const filteredProducts = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return products;
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+    loadProducts(newPage, rowsPerPage, searchQuery);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
+    setPage(0);
+    loadProducts(0, newRowsPerPage, searchQuery);
+  };
+
+  // Debounced search function
+  const debouncedSearch = useCallback((searchTerm) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
     }
     
-    const query = searchQuery.toLowerCase();
-    return products.filter(product => 
-      product.name.toLowerCase().includes(query) ||
-      product.barcode.toLowerCase().includes(query) ||
-      (product.unit && product.unit.toLowerCase().includes(query))
-    );
-  }, [products, searchQuery]);
+    searchTimeoutRef.current = setTimeout(() => {
+      setPage(0); // Reset to first page when searching
+      loadProducts(0, rowsPerPage, searchTerm);
+    }, 300); // Wait 300ms after user stops typing
+  }, [rowsPerPage]);
+
+  const handleSearchChange = (e) => {
+    const newSearchTerm = e.target.value;
+    setSearchQuery(newSearchTerm);
+    debouncedSearch(newSearchTerm);
+  };
 
   useEffect(() => {
-    loadProducts();
+    loadProducts(0, rowsPerPage, searchQuery, true);
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, []);
 
   if (loading) {
@@ -93,21 +143,21 @@ export default function CashierStock() {
           variant="outlined"
           placeholder="Cari produk berdasarkan nama, barcode, atau satuan..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={handleSearchChange}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
                 <SearchIcon />
               </InputAdornment>
             ),
+            endAdornment: searchLoading ? (
+              <InputAdornment position="end">
+                <CircularProgress size={20} />
+              </InputAdornment>
+            ) : null,
           }}
           sx={{ maxWidth: 500 }}
         />
-        {searchQuery.trim() && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Menampilkan {filteredProducts.length} dari {products.length} produk
-          </Typography>
-        )}
       </Box>
 
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -123,7 +173,7 @@ export default function CashierStock() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredProducts.length === 0 ? (
+              {products.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} sx={{ textAlign: 'center', py: 6 }}>
                     <Typography variant="h6" color="text.secondary">
@@ -132,7 +182,7 @@ export default function CashierStock() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredProducts.map((p) => (
+                products.map((p) => (
                   <TableRow key={p.id} hover sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -161,6 +211,16 @@ export default function CashierStock() {
             </TableBody>
           </Table>
         </TableContainer>
+        <TablePagination
+          component="div"
+          count={totalItems}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          labelRowsPerPage="Baris per halaman:"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} dari ${count}`}
+        />
       </Paper>
     </Container>
   );
