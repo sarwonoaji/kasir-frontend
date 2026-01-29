@@ -72,13 +72,6 @@ export default function UserCreate() {
   return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate("/users")}
-          sx={{ mr: 2 }}
-        >
-          Kembali
-        </Button>
         <Typography variant="h4" component="h1">
           Tambah User Baru
         </Typography>

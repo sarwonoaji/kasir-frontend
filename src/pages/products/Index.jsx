@@ -16,6 +16,9 @@ import {
   IconButton,
   Tooltip,
   Chip,
+  TextField,
+  InputAdornment,
+  CircularProgress,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -24,14 +27,24 @@ import {
   Delete as DeleteIcon,
   Inventory as InventoryIcon,
   QrCode as QrCodeIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 
 export default function ProductIndex() {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loadProducts = async () => {
-    const res = await api.get("/products");
-    setProducts(res.data);
+    try {
+      setLoading(true);
+      const res = await api.get("/products");
+      setProducts(res.data);
+    } catch (error) {
+      console.error("Error loading products:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const remove = async (id) => {
@@ -39,6 +52,12 @@ export default function ProductIndex() {
     await api.delete(`/products/${id}`);
     loadProducts();
   };
+
+  // Filter products based on search term
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.barcode.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     loadProducts();
@@ -53,6 +72,9 @@ export default function ProductIndex() {
             Daftar Produk
           </Typography>
         </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Button
           variant="contained"
           color="primary"
@@ -64,6 +86,21 @@ export default function ProductIndex() {
         >
           Tambah Produk
         </Button>
+        <TextField
+          label="Cari Produk"
+          variant="outlined"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Cari berdasarkan nama produk atau barcode..."
+          sx={{ maxWidth: 400 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -80,16 +117,27 @@ export default function ProductIndex() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {products.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} sx={{ textAlign: 'center', py: 6 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                      <CircularProgress size={40} />
+                      <Typography variant="body1" color="text.secondary">
+                        Memuat data produk...
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ) : filteredProducts.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} sx={{ textAlign: 'center', py: 6 }}>
                     <Typography variant="h6" color="text.secondary">
-                      Tidak ada data produk
+                      {searchTerm ? 'Tidak ada produk yang cocok dengan pencarian' : 'Tidak ada data produk'}
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                products.map((p) => (
+                filteredProducts.map((p) => (
                   <TableRow key={p.id} hover sx={{ '&:nth-of-type(odd)': { backgroundColor: 'action.hover' } }}>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

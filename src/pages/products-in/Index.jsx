@@ -16,6 +16,8 @@ import {
   Box,
   IconButton,
   Tooltip,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -23,11 +25,13 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Inventory as InventoryIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 
 export default function ProductInIndex() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -47,6 +51,12 @@ export default function ProductInIndex() {
     fetchData();
   };
 
+  // Filter data based on search term
+  const filteredData = data.filter(item =>
+    item.no_transaksi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.remark && item.remark.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   if (loading) return (
     <Container maxWidth="lg" sx={{ py: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
@@ -65,6 +75,9 @@ export default function ProductInIndex() {
             Daftar Barang Masuk
           </Typography>
         </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Button
           variant="contained"
           color="primary"
@@ -76,6 +89,21 @@ export default function ProductInIndex() {
         >
           Tambah Barang Masuk
         </Button>
+        <TextField
+          label="Cari Transaksi"
+          variant="outlined"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Cari berdasarkan no transaksi atau catatan..."
+          sx={{ maxWidth: 400 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -93,16 +121,16 @@ export default function ProductInIndex() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.length === 0 ? (
+              {filteredData.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} sx={{ textAlign: 'center', py: 6 }}>
                     <Typography variant="h6" color="text.secondary">
-                      Tidak ada data barang masuk
+                      {searchTerm ? 'Tidak ada transaksi yang cocok dengan pencarian' : 'Tidak ada data barang masuk'}
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                data.map((row, index) => {
+                filteredData.map((row, index) => {
                   const totalQty = row.details.reduce(
                     (sum, d) => sum + Number(d.quantity),
                     0

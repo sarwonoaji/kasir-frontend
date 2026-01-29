@@ -26,7 +26,6 @@ import {
   MoveToInbox as MoveToInboxIcon,
   Outbox as OutboxIcon,
   Logout as LogoutIcon,
-  Store as StoreIcon,
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
   People as PeopleIcon,
@@ -82,9 +81,8 @@ export default function MainLayout({ children }) {
         alignItems: 'center',
         justifyContent: 'center',
         borderBottom: 1,
-        borderColor: 'rgba(255, 255, 255, 0.3)'
+        borderColor: 'rgba(255, 255, 255, 0.2)'
       }}>
-        <StoreIcon sx={{ mr: 1, color: 'white' }} />
         <Typography variant="h6" fontWeight="bold" color="white">
           POS Kasir
         </Typography>
@@ -101,23 +99,17 @@ export default function MainLayout({ children }) {
               sx={{
                 mx: 1,
                 mb: 0.5,
-                borderRadius: 2,
+                borderRadius: 1,
                 color: 'white',
-                transition: 'all 0.2s ease-in-out',
                 '&.Mui-selected': {
-                  backgroundColor: 'primary.light',
-                  color: 'primary.main',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
                   '&:hover': {
-                    backgroundColor: 'primary.light',
-                  },
-                  '& .MuiListItemIcon-root': {
-                    color: 'primary.main',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   },
                 },
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                  transform: 'translateY(-1px)',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 },
               }}
             >
@@ -130,7 +122,7 @@ export default function MainLayout({ children }) {
         ))}
       </List>
 
-      <Divider sx={{ mx: 2, mb: 1, borderColor: 'rgba(255, 255, 255, 0.3)' }} />
+      <Divider sx={{ mx: 2, mb: 1, borderColor: 'rgba(255, 255, 255, 0.2)' }} />
 
       <Box sx={{ p: 2 }}>
         <Button
@@ -139,16 +131,8 @@ export default function MainLayout({ children }) {
           startIcon={<LogoutIcon />}
           sx={{
             color: 'white',
-            border: 1,
-            borderColor: 'rgba(255, 255, 255, 0.3)',
-            borderRadius: 2,
-            py: 1,
-            transition: 'all 0.2s ease-in-out',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              borderColor: 'white',
-              transform: 'translateY(-1px)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
             },
           }}
         >
@@ -197,14 +181,11 @@ export default function MainLayout({ children }) {
           keepMounted: true, // Better open performance on mobile.
         }}
         sx={{
-          width: drawerWidth,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
             backgroundColor: 'primary.main',
-            borderRight: 1,
-            borderColor: 'rgba(255, 255, 255, 0.3)',
           },
         }}
       >
@@ -217,8 +198,8 @@ export default function MainLayout({ children }) {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { md: sidebarOpen ? `calc(100% - ${drawerWidth}px)` : '100%' },
-          transition: theme.transitions.create('width', {
+          ml: { md: sidebarOpen ? `${drawerWidth}px` : 0 },
+          transition: theme.transitions.create('margin', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),

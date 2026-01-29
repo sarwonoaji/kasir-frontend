@@ -21,13 +21,15 @@ import {
   Card,
   CardContent,
   Grid,
+  TextField,
 } from "@mui/material";
 import { Assessment as ReportIcon } from "@mui/icons-material";
 
 export default function Reports() {
-  const [reportType, setReportType] = useState("daily");
   const [shiftId, setShiftId] = useState("");
   const [shifts, setShifts] = useState([]);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -39,10 +41,8 @@ export default function Reports() {
       setError("Akses ditolak. Hanya admin yang dapat melihat laporan ini.");
       return;
     }
-    if (reportType === "shift") {
-      fetchShifts();
-    }
-  }, [reportType, role]);
+    fetchShifts();
+  }, [role]);
 
   const fetchShifts = async () => {
     try {
@@ -53,28 +53,64 @@ export default function Reports() {
     }
   };
 
-  const fetchReport = async () => {
-    if (role !== "admin" && role !== "manager") {
-      setError("Akses ditolak. Hanya admin yang dapat melihat laporan ini.");
-      return;
-    }
-
-    if (reportType === "shift" && !shiftId) {
-      setError("Pilih shift terlebih dahulu");
+  const downloadPdf = async () => {
+    if (!startDate || !endDate) {
+      setError("Pilih tanggal awal dan akhir");
       return;
     }
 
     try {
       setLoading(true);
       setError("");
-      let endpoint = "";
-      if (reportType === "daily") {
-        endpoint = "/product-outs/report-all-daily";
-      } else if (reportType === "monthly") {
-        endpoint = "/product-outs/report-all-monthly";
-      } else if (reportType === "shift") {
-        endpoint = `/product-outs/report-all-shift/${shiftId}`;
+      const params = new URLSearchParams({
+        start_date: startDate,
+        end_date: endDate,
+      });
+      if (shiftId) {
+        params.append('shift_id', shiftId);
       }
+      const endpoint = `/product-outs/report-all-filtered-pdf?${params.toString()}`;
+
+      const res = await api.get(endpoint, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'report.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error downloading PDF:", err);
+      const errorMsg = err.response?.data?.message || "Gagal mengunduh PDF";
+      setError(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReport = async () => {
+    if (role !== "admin" && role !== "manager") {
+      setError("Akses ditolak. Hanya admin yang dapat melihat laporan ini.");
+      return;
+    }
+
+    if (!startDate || !endDate) {
+      setError("Pilih tanggal awal dan akhir");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      const params = new URLSearchParams({
+        start_date: startDate,
+        end_date: endDate,
+      });
+      if (shiftId) {
+        params.append('shift_id', shiftId);
+      }
+      const endpoint = `/product-outs/report-all-filtered?${params.toString()}`;
 
       const res = await api.get(endpoint);
       setReportData(res.data);
@@ -85,12 +121,6 @@ export default function Reports() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleReportTypeChange = (e) => {
-    setReportType(e.target.value);
-    setShiftId("");
-    setReportData(null);
   };
 
   return (
@@ -104,51 +134,69 @@ export default function Reports() {
 
       <Paper elevation={3} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
         <Typography variant="h6" gutterBottom>
-          Pilih Tipe Laporan
+          Filter Laporan
         </Typography>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3}>
+            <TextField
+              fullWidth
+              label="Tanggal Awal"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <TextField
+              fullWidth
+              label="Tanggal Akhir"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12} md={3}>
             <FormControl fullWidth>
-              <InputLabel>Tipe Laporan</InputLabel>
+              <InputLabel>Shift (Opsional)</InputLabel>
               <Select
-                value={reportType}
-                label="Tipe Laporan"
-                onChange={handleReportTypeChange}
+                value={shiftId}
+                label="Shift (Opsional)"
+                onChange={(e) => setShiftId(e.target.value)}
               >
-                <MenuItem value="daily">Harian</MenuItem>
-                <MenuItem value="monthly">Bulanan</MenuItem>
-                <MenuItem value="shift">Berdasarkan Shift</MenuItem>
+                <MenuItem value="">
+                  <em>Semua Shift</em>
+                </MenuItem>
+                {shifts.map((shift) => (
+                  <MenuItem key={shift.id} value={shift.id}>
+                    {shift.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
-          {reportType === "shift" && (
-            <Grid item xs={12} md={4}>
-              <FormControl fullWidth>
-                <InputLabel>Pilih Shift</InputLabel>
-                <Select
-                  value={shiftId}
-                  label="Pilih Shift"
-                  onChange={(e) => setShiftId(e.target.value)}
-                >
-                  {shifts.map((shift) => (
-                    <MenuItem key={shift.id} value={shift.id}>
-                      {shift.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-          )}
-          <Grid item xs={12} md={4}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={fetchReport}
-              disabled={loading}
-              fullWidth
-            >
-              {loading ? <CircularProgress size={24} /> : "Generate Laporan"}
-            </Button>
+          <Grid item xs={12} md={3}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={fetchReport}
+                disabled={loading}
+                sx={{ flex: 1 }}
+              >
+                {loading ? <CircularProgress size={24} /> : "Generate Laporan"}
+              </Button>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={downloadPdf}
+                disabled={loading}
+                sx={{ flex: 1 }}
+              >
+                Cetak PDF
+              </Button>
+            </Box>
           </Grid>
         </Grid>
       </Paper>
@@ -189,12 +237,13 @@ export default function Reports() {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>
-                  {reportType === "daily" ? "Tanggal" : reportType === "monthly" ? "Bulan/Tahun" : "Shift ID"}
+                  Periode
                 </Typography>
-                <Typography variant="h6" component="div">
-                  {reportType === "daily" ? reportData.date :
-                   reportType === "monthly" ? `${reportData.month}/${reportData.year}` :
-                   reportData.shift_id}
+                <Typography variant="body2" component="div">
+                  {reportData.start_date} - {reportData.end_date}
+                </Typography>
+                <Typography variant="body2" component="div">
+                  Shift: {reportData.shift_id ? shifts.find(s => s.id == reportData.shift_id)?.name || reportData.shift_id : 'Semua'}
                 </Typography>
               </CardContent>
             </Card>

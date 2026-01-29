@@ -22,17 +22,20 @@ import {
   DialogActions,
   IconButton,
   TextField,
+  InputAdornment,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Info as InfoIcon,
   Visibility as VisibilityIcon,
   Close as CloseIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 
 export default function CashierSessionIndex() {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState([]);
+  const [allSessions, setAllSessions] = useState([]); // Store all data for client-side filtering
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(0);
@@ -46,36 +49,60 @@ export default function CashierSessionIndex() {
     notes: "",
   });
   const [closing, setClosing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchSessions();
-  }, [page, rowsPerPage]);
+  }, []);
+
+  useEffect(() => {
+    // Filter and paginate sessions when search term, page, or rows per page changes
+    filterSessions();
+  }, [searchTerm, allSessions, page, rowsPerPage]);
 
   const fetchSessions = async () => {
     try {
       setLoading(true);
+      // Fetch all data for client-side filtering and pagination
       const res = await api.get("/cashier-sessions/history", {
         params: {
-          page: page + 1,
-          per_page: rowsPerPage,
+          page: 1,
+          per_page: 1000, // Large number to get all data
         }
       });
       
       // Handle berbagai format response
       const data = res.data.data || res.data;
-      const total = res.data.total || res.data.length || 0;
       
-      setSessions(Array.isArray(data) ? data : []);
-      setTotalItems(total);
+      setAllSessions(Array.isArray(data) ? data : []);
       setError("");
     } catch (err) {
       console.error("Full error:", err.response);
       const errorMsg = err.response?.data?.message || "Gagal mengambil data session";
       setError(errorMsg);
-      setSessions([]);
+      setAllSessions([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterSessions = () => {
+    let filtered = allSessions;
+
+    if (searchTerm) {
+      filtered = allSessions.filter(session =>
+        session.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        session.shift?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply pagination to filtered results
+    const startIndex = page * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    const paginatedData = filtered.slice(startIndex, endIndex);
+
+    setSessions(paginatedData);
+    setTotalItems(filtered.length);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -85,6 +112,10 @@ export default function CashierSessionIndex() {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   const handleViewDetail = (session) => {
@@ -146,13 +177,6 @@ export default function CashierSessionIndex() {
         <Typography variant="h4" component="h1">
           History Session Kasir
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/cashier-sessions/open')}
-        >
-          Buka Session Baru
-        </Button>
       </Box>
 
       {error && (
@@ -160,6 +184,31 @@ export default function CashierSessionIndex() {
           {error}
         </Alert>
       )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate('/cashier-sessions/open')}
+        >
+          Buka Session Baru
+        </Button>
+        <TextField
+          label="Cari Session"
+          variant="outlined"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          placeholder="Cari berdasarkan nama kasir atau shift..."
+          sx={{ maxWidth: 400 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
 
       <TableContainer component={Paper} elevation={3}>
         <Table>

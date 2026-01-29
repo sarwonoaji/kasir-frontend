@@ -17,6 +17,8 @@ import {
   Chip,
   IconButton,
   Tooltip,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -24,11 +26,13 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   ShoppingCart as ShoppingCartIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 
 export default function ProductOutIndex() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -48,6 +52,13 @@ export default function ProductOutIndex() {
     fetchData();
   };
 
+  // Filter data based on search term
+  const filteredData = data.filter(item =>
+    item.invoice.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (item.customer_name && item.customer_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.casher && item.casher.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   if (loading) return (
     <Container maxWidth="lg" sx={{ py: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
@@ -66,6 +77,9 @@ export default function ProductOutIndex() {
             Daftar Penjualan
           </Typography>
         </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Button
           variant="contained"
           color="primary"
@@ -77,6 +91,21 @@ export default function ProductOutIndex() {
         >
           Tambah Penjualan
         </Button>
+        <TextField
+          label="Cari Penjualan"
+          variant="outlined"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Cari berdasarkan invoice, customer, atau kasir..."
+          sx={{ maxWidth: 400 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       <Paper elevation={3} sx={{ borderRadius: 2, overflow: 'hidden' }}>
@@ -97,16 +126,16 @@ export default function ProductOutIndex() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.length === 0 ? (
+              {filteredData.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={10} sx={{ textAlign: 'center', py: 6 }}>
                     <Typography variant="h6" color="text.secondary">
-                      Tidak ada data penjualan
+                      {searchTerm ? 'Tidak ada penjualan yang cocok dengan pencarian' : 'Tidak ada data penjualan'}
                     </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
-                data.map((row, index) => {
+                filteredData.map((row, index) => {
                   const totalQty = row.details.reduce(
                     (sum, d) => sum + Number(d.quantity),
                     0

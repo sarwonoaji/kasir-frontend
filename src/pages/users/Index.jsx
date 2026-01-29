@@ -20,11 +20,14 @@ import {
   DialogActions,
   Alert,
   Chip,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 
 export default function UserIndex() {
@@ -34,6 +37,7 @@ export default function UserIndex() {
   const [error, setError] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -70,6 +74,13 @@ export default function UserIndex() {
     }
   };
 
+  // Filter users based on search term
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const getRoleColor = (role) => {
     switch (role) {
       case "admin":
@@ -89,6 +100,9 @@ export default function UserIndex() {
         <Typography variant="h4" component="h1">
           Manajemen User
         </Typography>
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -96,6 +110,21 @@ export default function UserIndex() {
         >
           Tambah User
         </Button>
+        <TextField
+          label="Cari User"
+          variant="outlined"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Cari berdasarkan nama, email, atau role..."
+          sx={{ maxWidth: 400 }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Box>
 
       {error && (
@@ -122,14 +151,16 @@ export default function UserIndex() {
                   <Typography>Loading...</Typography>
                 </TableCell>
               </TableRow>
-            ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                  <Typography>Tidak ada data user</Typography>
+                  <Typography>
+                    {searchTerm ? 'Tidak ada user yang cocok dengan pencarian' : 'Tidak ada data user'}
+                  </Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              users.map((user, index) => (
+              filteredUsers.map((user, index) => (
                 <TableRow key={user.id} hover>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{user.name}</TableCell>
