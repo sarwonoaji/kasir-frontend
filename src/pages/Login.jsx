@@ -79,88 +79,162 @@ export default function Login() {
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100vh',
-      backgroundColor: '#f0f2f5',
+      background: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
       fontFamily: 'system-ui, Avenir, Helvetica, Arial, sans-serif'
     }}>
       <div style={{
         backgroundColor: 'white',
-        padding: '40px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+        padding: '50px',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         width: '100%',
-        maxWidth: '400px',
-        textAlign: 'center'
+        maxWidth: '420px',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        <h2 style={{
-          marginBottom: '20px',
-          color: '#333',
-          fontSize: '24px',
-          fontWeight: '600'
-        }}>Login Kasir</h2>
+        <div style={{
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          right: '0',
+          height: '4px',
+          background: 'linear-gradient(90deg, #3b82f6, #1e40af)'
+        }}></div>
+        
+        <div style={{ marginBottom: '30px' }}>
+          <div style={{
+            fontSize: '48px',
+            marginBottom: '10px',
+            color: '#3b82f6'
+          }}>🛒</div>
+          <h2 style={{
+            marginBottom: '10px',
+            color: '#333',
+            fontSize: '28px',
+            fontWeight: '700'
+          }}>Selamat Datang</h2>
+          <p style={{
+            color: '#666',
+            fontSize: '16px',
+            margin: '0'
+          }}>Masuk ke Sistem Kasir</p>
+        </div>
 
         {error && (
           <div style={{
             color: '#e74c3c',
             backgroundColor: '#fdf2f2',
-            padding: '10px',
-            borderRadius: '4px',
-            marginBottom: '20px',
-            fontSize: '14px'
+            padding: '12px',
+            borderRadius: '6px',
+            marginBottom: '25px',
+            fontSize: '14px',
+            border: '1px solid #f5c6cb'
           }}>
             {error}
           </div>
         )}
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px',
-            marginBottom: '15px',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            boxSizing: 'border-box'
-          }}
-        />
+        <div style={{ position: 'relative', marginBottom: '20px' }}>
+          <span style={{
+            position: 'absolute',
+            left: '15px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#999',
+            fontSize: '18px'
+          }}>📧</span>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '15px 15px 15px 45px',
+              border: '2px solid #e1e5e9',
+              borderRadius: '8px',
+              fontSize: '16px',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.3s, box-shadow 0.3s',
+              outline: 'none'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#3b82f6';
+              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = '#e1e5e9';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+        </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px',
-            marginBottom: '20px',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '16px',
-            boxSizing: 'border-box'
-          }}
-        />
+        <div style={{ position: 'relative', marginBottom: '25px' }}>
+          <span style={{
+            position: 'absolute',
+            left: '15px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#999',
+            fontSize: '18px'
+          }}>🔒</span>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '15px 15px 15px 45px',
+              border: '2px solid #e1e5e9',
+              borderRadius: '8px',
+              fontSize: '16px',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.3s, box-shadow 0.3s',
+              outline: 'none'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#3b82f6';
+              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = '#e1e5e9';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+        </div>
 
         <button
           onClick={submit}
           disabled={loading}
           style={{
             width: '100%',
-            padding: '12px',
-            backgroundColor: loading ? '#ccc' : '#007bff',
+            padding: '15px',
+            background: loading ? '#ccc' : 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
             color: 'white',
             border: 'none',
-            borderRadius: '4px',
+            borderRadius: '8px',
             fontSize: '16px',
+            fontWeight: '600',
             cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'background-color 0.3s'
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)'
           }}
-          onMouseOver={(e) => !loading && (e.target.style.backgroundColor = '#0056b3')}
-          onMouseOut={(e) => !loading && (e.target.style.backgroundColor = '#007bff')}
+          onMouseOver={(e) => {
+            if (!loading) {
+              e.target.style.transform = 'translateY(-2px)';
+              e.target.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+            }
+          }}
+          onMouseOut={(e) => {
+            if (!loading) {
+              e.target.style.transform = 'translateY(0)';
+              e.target.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.3)';
+            }
+          }}
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? '🔄 Masuk...' : 'Masuk'}
         </button>
       </div>
     </div>

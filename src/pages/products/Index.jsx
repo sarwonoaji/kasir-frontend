@@ -146,7 +146,7 @@ export default function ProductIndex() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <InventoryIcon color="primary" sx={{ fontSize: 40 }} />
           <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
-            Daftar Produk
+            Daftar Barang
           </Typography>
         </Box>
       </Box>

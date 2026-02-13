@@ -35,6 +35,13 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
 
+  const formatNumber = (num) => {
+    if (num === null || num === undefined || num === '') return '0.00';
+    const number = parseFloat(num);
+    if (isNaN(number)) return '0.00';
+    return number.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+  };
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -54,7 +61,7 @@ export default function Dashboard() {
   const statCards = [
     {
       title: 'Penjualan Hari Ini',
-      value: `Rp ${dashboardData.total_sales_today?.toLocaleString() || 0}`,
+      value: `Rp ${formatNumber(dashboardData.total_sales_today || 0)}`,
       icon: <MoneyIcon />,
       color: 'success',
       bgColor: 'success.light',
@@ -68,7 +75,7 @@ export default function Dashboard() {
     },
     {
       title: 'Penjualan Bulan Ini',
-      value: `Rp ${dashboardData.total_sales_month?.toLocaleString() || 0}`,
+      value: `Rp ${formatNumber(dashboardData.total_sales_month || 0)}`,
       icon: <TrendingUpIcon />,
       color: 'info',
       bgColor: 'info.light',
@@ -151,7 +158,7 @@ export default function Dashboard() {
                       </ListItemIcon>
                       <ListItemText
                         primary={`Invoice: ${transaction.invoice_number || `INV-${transaction.id}`}`}
-                        secondary={`${transaction.user?.name || 'N/A'} - Rp ${transaction.total?.toLocaleString() || 0} - ${new Date(transaction.date).toLocaleDateString()}`}
+                        secondary={`${transaction.user?.name || 'N/A'} - Rp ${formatNumber(transaction.total || 0)} - ${new Date(transaction.date).toLocaleDateString()}`}
                         primaryTypographyProps={{ variant: 'body2' }}
                         secondaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
                       />
