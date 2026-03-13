@@ -24,8 +24,8 @@ import {
 } from "@mui/material";
 import {
   Backup as BackupIcon,
-  Download as DownloadIcon,
-  Delete as DeleteIcon,
+  DownloadOutlined as DownloadIcon,
+  DeleteOutline as DeleteIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
 
@@ -230,17 +230,29 @@ export default function BackupIndex() {
                     <TableCell sx={{ textAlign: 'center' }}>
                       <Tooltip title="Unduh Backup">
                         <IconButton
-                          color="primary"
                           onClick={() => handleDownload(backup.filename)}
-                          sx={{ mr: 1 }}
+                          sx={{
+                            bgcolor: 'primary.light',
+                            color: 'primary.contrastText',
+                            '&:hover': { bgcolor: 'primary.main' },
+                            width: 36,
+                            height: 36,
+                            mr: 1,
+                          }}
                         >
                           <DownloadIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Hapus Backup">
                         <IconButton
-                          color="error"
                           onClick={() => handleDeleteClick(backup.filename)}
+                          sx={{
+                            bgcolor: 'error.light',
+                            color: 'error.contrastText',
+                            '&:hover': { bgcolor: 'error.main' },
+                            width: 36,
+                            height: 36,
+                          }}
                         >
                           <DeleteIcon />
                         </IconButton>

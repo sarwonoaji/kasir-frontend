@@ -13,6 +13,8 @@ import {
   TableRow,
   Button,
   Box,
+  IconButton,
+  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -25,8 +27,8 @@ import {
 } from "@mui/material";
 import {
   Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
+  EditOutlined as EditIcon,
+  DeleteOutline as DeleteIcon,
   Search as SearchIcon,
 } from "@mui/icons-material";
 
@@ -95,12 +97,15 @@ export default function UserIndex() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Manajemen User
-        </Typography>
-      </Box>
+  
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
+                Manajemen User
+              </Typography>
+            </Box>
+          </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Button
@@ -174,22 +179,38 @@ export default function UserIndex() {
                     />
                   </TableCell>
                   <TableCell sx={{ textAlign: 'center' }}>
-                    <Button
-                      size="small"
-                      startIcon={<EditIcon />}
-                      onClick={() => navigate(`/users/edit/${user.id}`)}
-                      sx={{ mr: 1 }}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      size="small"
-                      color="error"
-                      startIcon={<DeleteIcon />}
-                      onClick={() => handleDeleteClick(user.id)}
-                    >
-                      Hapus
-                    </Button>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                      <Tooltip title="Edit">
+                        <IconButton
+                          size="small"
+                          onClick={() => navigate(`/users/edit/${user.id}`)}
+                          sx={{
+                            bgcolor: 'secondary.light',
+                            color: 'secondary.contrastText',
+                            '&:hover': { bgcolor: 'secondary.main' },
+                            width: 36,
+                            height: 36,
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Hapus">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteClick(user.id)}
+                          sx={{
+                            bgcolor: 'error.light',
+                            color: 'error.contrastText',
+                            '&:hover': { bgcolor: 'error.main' },
+                            width: 36,
+                            height: 36,
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))

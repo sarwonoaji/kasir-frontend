@@ -16,6 +16,7 @@ import {
   Alert,
   TablePagination,
   Chip,
+  Tooltip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -27,16 +28,16 @@ import {
 import {
   Add as AddIcon,
   Info as InfoIcon,
-  Visibility as VisibilityIcon,
-  Close as CloseIcon,
+  VisibilityOutlined as VisibilityIcon,
+  CloseOutlined as CloseIcon,
   Search as SearchIcon,
-  Refresh as RefreshIcon,
+  RefreshOutlined as RefreshIcon,
 } from "@mui/icons-material";
 
 export default function CashierSessionIndex() {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState([]);
-  const [allSessions, setAllSessions] = useState([]); // Store all data for client-side filtering
+  const [allSessions, setAllSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(0);
@@ -59,22 +60,20 @@ export default function CashierSessionIndex() {
   }, []);
 
   useEffect(() => {
-    // Filter and paginate sessions when search term, page, or rows per page changes
     filterSessions();
   }, [searchTerm, allSessions, page, rowsPerPage]);
 
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      // Fetch all data for client-side filtering and pagination
       const res = await api.get("/cashier-sessions/history", {
         params: {
           page: 1,
-          per_page: 1000, // Large number to get all data
+          per_page: 1000, 
         }
       });
       
-      // Handle berbagai format response
+    
       const data = res.data.data || res.data;
       
       setAllSessions(Array.isArray(data) ? data : []);
@@ -99,7 +98,7 @@ export default function CashierSessionIndex() {
       );
     }
 
-    // Apply pagination to filtered results
+
     const startIndex = page * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
     const paginatedData = filtered.slice(startIndex, endIndex);
@@ -129,9 +128,8 @@ export default function CashierSessionIndex() {
   const handleCloseClick = (session) => {
     setSelectedSession(session);
     setClosingData({ closing_balance: "", notes: "" });
-    setTotalTransaksi(0); // Reset total transaksi
+    setTotalTransaksi(0);
     setOpenCloseDialog(true);
-    // Fetch total transaksi untuk session ini
     fetchTotalTransaksi(session.id);
   };
 
@@ -193,12 +191,16 @@ export default function CashierSessionIndex() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          History Session Kasir
-        </Typography>
-      </Box>
+    
+
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Typography variant="h4" component="h1" color="primary" fontWeight="bold">
+                    History Session Kasir
+                  </Typography>
+                </Box>
+              </Box>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -277,24 +279,39 @@ export default function CashierSessionIndex() {
                     />
                   </TableCell>
                   <TableCell sx={{ textAlign: 'center' }}>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleViewDetail(session)}
-                      title="Lihat Detail"
-                    >
-                      <VisibilityIcon fontSize="small" />
-                    </IconButton>
-                    {session.status === 'open' && (
-                      <Button
-                        size="small"
-                        color="error"
-                        startIcon={<CloseIcon />}
-                        onClick={() => handleCloseClick(session)}
-                        sx={{ ml: 1 }}
-                      >
-                        Close
-                      </Button>
-                    )}
+                      <Tooltip title="Lihat Detail">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleViewDetail(session)}
+                          sx={{
+                            bgcolor: 'primary.light',
+                            color: 'primary.contrastText',
+                            '&:hover': { bgcolor: 'primary.main' },
+                            width: 36,
+                            height: 36,
+                            mr: 1,
+                          }}
+                        >
+                          <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      {session.status === 'open' && (
+                        <Tooltip title="Tutup Session">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleCloseClick(session)}
+                            sx={{
+                              bgcolor: 'error.light',
+                              color: 'error.contrastText',
+                              '&:hover': { bgcolor: 'error.main' },
+                              width: 36,
+                              height: 36,
+                            }}
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      )}
                   </TableCell>
                 </TableRow>
               ))

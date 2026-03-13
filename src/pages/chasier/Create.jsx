@@ -77,6 +77,7 @@ export default function ProductOutCreate() {
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [errors, setErrors] = useState([""]);
+  const [backendError, setBackendError] = useState("");
 
   const barcodeRefs = useRef([]);
   const receiptRef = useRef();
@@ -205,28 +206,42 @@ export default function ProductOutCreate() {
       alert("Tidak ada item valid untuk disimpan");
       return;
     }
-    await api.post("/product-outs", {
-      customer_name: customerName,
-      date: new Date().toISOString().slice(0, 10),
-      casher,
-      items: validItems,
-      money_received: moneyReceived,
-      discount: discount,
-      return: returnAmount,
-      payment_method: paymentMethod,
-    });
+    // Jangan izinkan simpan jika uang yang diterima kurang dari total bayar
+    if (returnAmount < 0) {
+      alert("Uang yang diterima kurang dari total bayar. Lengkapi pembayaran sebelum menyimpan.");
+      return;
+    }
+    try {
+      await api.post("/product-outs", {
+        customer_name: customerName,
+        date: new Date().toISOString().slice(0, 10),
+        casher,
+        items: validItems,
+        money_received: moneyReceived,
+        discount: discount,
+        return: returnAmount,
+        payment_method: paymentMethod,
+      });
 
-    alert("Transaksi berhasil");
-    // Print receipt otomatis setelah berhasil
-    handlePrint();
-    
-    // Reset form setelah print
-    setItems([{ barcode: "", product_id: "", name: "", stock: 0, quantity: 1, price: 0, total_price: 0 }]);
-    setCustomerName("");
-    setMoneyReceived(0);
-    setDiscount(0);
-    setPaymentMethod("");
-    setErrors([""]); // Reset errors
+      setBackendError("");
+      alert("Transaksi berhasil");
+      // Print receipt otomatis setelah berhasil
+      handlePrint();
+      
+      // Reset form setelah print
+      setItems([{ barcode: "", product_id: "", name: "", stock: 0, quantity: 1, price: 0, total_price: 0 }]);
+      setCustomerName("");
+      setMoneyReceived(0);
+      setDiscount(0);
+      setPaymentMethod("");
+      setErrors([""]); // Reset errors
+    } catch (error) {
+      // Ambil pesan dari respons backend jika ada
+      const message = error?.response?.data?.message || error.message || "Terjadi kesalahan saat menyimpan transaksi";
+      setBackendError(message);
+      // Optionally log for debugging
+      console.error("Submit error:", error);
+    }
   };
 
   return (
@@ -235,8 +250,8 @@ export default function ProductOutCreate() {
       <Box sx={{ flex: 1, p: 3, overflow: 'auto' }}>
         <Box sx={{ width: '100%' }}>
           <Paper elevation={3} sx={{ p: 4, borderRadius: 2, boxSizing: 'border-box' }}>
-            <Typography variant="h4" component="h1" gutterBottom color="primary" sx={{ mb: 3 }}>
-              POS - Product Out
+            <Typography variant="h4" component="h3" gutterBottom color="primary" sx={{ mb: 3 }}>
+             Transaksi Keluar
             </Typography>
 
             <Grid container spacing={3}>
@@ -255,6 +270,12 @@ export default function ProductOutCreate() {
             <Typography variant="h6" gutterBottom sx={{ mt: 3, mb: 2 }}>
               Daftar Produk
             </Typography>
+
+            {backendError && (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                {backendError}
+              </Alert>
+            )}
 
             <TableContainer component={Paper} elevation={1} sx={{ mb: 3 }}>
               <Table>
@@ -398,6 +419,7 @@ export default function ProductOutCreate() {
                 size="large"
                 startIcon={<SaveIcon />}
                 onClick={submit}
+                disabled={returnAmount < 0}
                 sx={{ px: 4, py: 1.5 }}
               >
                 Simpan Transaksi

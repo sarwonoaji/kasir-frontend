@@ -22,11 +22,11 @@ import {
 } from "@mui/material";
 import {
   Add as AddIcon,
-  Visibility as VisibilityIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
   ShoppingCart as ShoppingCartIcon,
   Search as SearchIcon,
+  VisibilityOutlined as VisibilityIcon,
+  EditOutlined as EditIcon,
+  DeleteOutline as DeleteIcon,
 } from "@mui/icons-material";
 
 export default function ProductOutIndex() {
@@ -174,8 +174,14 @@ export default function ProductOutIndex() {
                             <IconButton
                               component={Link}
                               to={`/products-out/${row.id}`}
-                              color="primary"
                               size="small"
+                              sx={{
+                                bgcolor: 'primary.light',
+                                color: 'primary.contrastText',
+                                '&:hover': { bgcolor: 'primary.main' },
+                                width: 36,
+                                height: 36,
+                              }}
                             >
                               <VisibilityIcon />
                             </IconButton>
@@ -184,8 +190,14 @@ export default function ProductOutIndex() {
                             <IconButton
                               component={Link}
                               to={`/products-out/edit/${row.id}`}
-                              color="secondary"
                               size="small"
+                              sx={{
+                                bgcolor: 'secondary.light',
+                                color: 'secondary.contrastText',
+                                '&:hover': { bgcolor: 'secondary.main' },
+                                width: 36,
+                                height: 36,
+                              }}
                             >
                               <EditIcon />
                             </IconButton>
@@ -193,8 +205,14 @@ export default function ProductOutIndex() {
                           <Tooltip title="Hapus">
                             <IconButton
                               onClick={() => remove(row.id)}
-                              color="error"
                               size="small"
+                              sx={{
+                                bgcolor: 'error.light',
+                                color: 'error.contrastText',
+                                '&:hover': { bgcolor: 'error.main' },
+                                width: 36,
+                                height: 36,
+                              }}
                             >
                               <DeleteIcon />
                             </IconButton>

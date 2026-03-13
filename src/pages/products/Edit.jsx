@@ -28,7 +28,6 @@ export default function ProductEdit() {
     barcode: "",
     name: "",
     price: "",
-    stock: "",
     unit: "",
     description: "",
   });
@@ -46,7 +45,6 @@ export default function ProductEdit() {
       barcode: form.barcode,
       name: form.name,
       price: Number(form.price),
-      stock: Number(form.stock),
       unit: form.unit,
       description: form.description,
     });
@@ -113,20 +111,6 @@ export default function ProductEdit() {
                 required
               />
             </Grid>
-
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Stok"
-                type="number"
-                variant="outlined"
-                value={form.stock}
-                onChange={e => setForm({ ...form, stock: e.target.value })}
-                placeholder="0"
-                required
-              />
-            </Grid>
-
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth

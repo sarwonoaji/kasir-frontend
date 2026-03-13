@@ -22,12 +22,11 @@ import {
 } from "@mui/material";
 import {
   Add as AddIcon,
-  Visibility as VisibilityIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
   Inventory as InventoryIcon,
   QrCode as QrCodeIcon,
   Search as SearchIcon,
+  EditOutlined as EditIcon,
+  DeleteOutline as DeleteIcon,
 } from "@mui/icons-material";
 
 export default function ShiftIndex() {
@@ -147,8 +146,14 @@ export default function ShiftIndex() {
                           <IconButton
                             component={Link}
                             to={`/shift/edit/${p.id}`}
-                            color="secondary"
                             size="small"
+                            sx={{
+                              bgcolor: 'secondary.light',
+                              color: 'secondary.contrastText',
+                              '&:hover': { bgcolor: 'secondary.main' },
+                              width: 36,
+                              height: 36,
+                            }}
                           >
                             <EditIcon />
                           </IconButton>
@@ -156,8 +161,14 @@ export default function ShiftIndex() {
                         <Tooltip title="Hapus Shift">
                           <IconButton
                             onClick={() => remove(p.id)}
-                            color="error"
                             size="small"
+                            sx={{
+                              bgcolor: 'error.light',
+                              color: 'error.contrastText',
+                              '&:hover': { bgcolor: 'error.main' },
+                              width: 36,
+                              height: 36,
+                            }}
                           >
                             <DeleteIcon />
                           </IconButton>

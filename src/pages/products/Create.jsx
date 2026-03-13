@@ -26,7 +26,6 @@ export default function ProductCreate() {
     barcode: "",
     name: "",
     price: "",
-    stock: "",
     unit: "",
     description: "",
   });
@@ -132,22 +131,6 @@ export default function ProductCreate() {
                 helperText={errors.price ? errors.price[0] : ""}
               />
             </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                label="Stok"
-                type="number"
-                variant="outlined"
-                value={form.stock}
-                onChange={e => setForm({ ...form, stock: e.target.value })}
-                placeholder="0"
-                required
-                error={!!errors.stock}
-                helperText={errors.stock ? errors.stock[0] : ""}
-              />
-            </Grid>
-
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
